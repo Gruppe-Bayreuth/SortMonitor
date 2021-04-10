@@ -7,7 +7,7 @@ Bei besserer Performance könnte es evtl später auch für andere Algorithmen ve
 Versionshistorie:
 1.1. Elementare Version; ModelViewController-Grundstruktur; Timer als Taktgeber; Arrays als Feld
 1.2. Erweiterung um GUI (Speed, Feldgröße); Arrays als Feld; Bug bei Vergrößerung des Feldes
-1.3. Stabile Version: Switch auf ArrayList; skalierbar bis 1800; Number of operations
+1.3. Stabile Version: Switch auf ArrayList; skalierbar bis 1400; Number of operations
 
 To do: (bitte erweitern!)
 
@@ -15,6 +15,7 @@ To do: (bitte erweitern!)
 - weitere Algorithmen implementieren
 - Messung der Rechenzeit
 - Responsive Design (bei Änderung der Fenstergöße z.B)
+- Performance verbessern: Arrays sind deutlich schneller; Algorithmen verbessern
 - ...
 
 
