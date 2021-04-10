@@ -173,7 +173,7 @@ public class Controller extends JFrame implements ActionListener{
 	   	prefWindow.setSize(300,150);
 	   	prefWindow.setLocationRelativeTo(this);
 		JPanel pan = new JPanel();
-		JLabel fs = new JLabel("Fieldsize (max. 700)");
+		JLabel fs = new JLabel("Fieldsize (max. 1400)");
 		pan.add(fs);
 		inputFieldsize = new JTextField(""+m1.getSize(),4);
 		pan.add(inputFieldsize);
@@ -214,6 +214,32 @@ public class Controller extends JFrame implements ActionListener{
 	   return nrOfOperations;
    }
    
+   // ActionListener
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if(e.getSource() == butt){
+		   if (isParsable()) {
+	           int i = Integer.parseInt(inputFieldsize.getText());
+	           if (i<3 || i>1400) { inputFieldsize.setText(""+m1.getSize()); }
+	           else { 
+	           	prefWindow.dispose();
+	           	m1.setSize(i);
+	           	m1.init_field(true);
+	           	v1.calc_barWidth();
+	           	repaint();
+	           } 
+		   }
+       } 	
+	}
+	
+	public boolean isParsable() {
+		try {
+	        Integer.parseInt(inputFieldsize.getText());
+	        return true;
+	    } catch (final NumberFormatException e) {
+	        return false;
+	    }	
+	}
    
     // Getter  und Setter  
 	public String getAlgo() {
@@ -232,20 +258,5 @@ public class Controller extends JFrame implements ActionListener{
 		nrOfOperations.setText("<html><body><center>Calculation time<br>" + ct + "</center><body></html>");
 	}
 	
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == butt){
-            int i = Integer.parseInt(inputFieldsize.getText());
-            if (i<3 || i>700) { inputFieldsize.setText(""+m1.getSize()); }
-            else { 
-            	prefWindow.dispose();
-            	m1.delete_field(i);
-            	v1.calc_barWidth();
-            	repaint();
-            }
-          
-            
-        } 
-		
-	}
+
 }

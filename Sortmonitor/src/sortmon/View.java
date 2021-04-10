@@ -3,6 +3,8 @@ package sortmon;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+
 import javax.swing.JPanel;
 
 public class View extends JPanel {	
@@ -34,8 +36,12 @@ public class View extends JPanel {
 			}
 			
 			public void calc_barWidth() {
+				this.space = 2;
 				if (m.getSize() > 470) { this.space = 1; }
+				if (m.getSize() > 700) { this.space = 0; }
+				
 				this.barWidth = (int) (windowWidth-marginLeft*2) / m.getSize() - space;
+				if (this.barWidth < 1) { this.barWidth = 1; }
 			}
 			
 				public void paintComponent(Graphics g) {
@@ -47,7 +53,7 @@ public class View extends JPanel {
 			        // Oldfield
 			        g2d.setColor(old);
 			        g.drawString("Randomized field", marginLeft, windowHeight-marginBottom-103*factorHeight);
-			        int[] old_field = m.getOldField();
+			        ArrayList<Integer> old_field = m.getOldField();
 			        int count = 0;
 			        for (int f: old_field) {
 			        	if (count == m.getCurrentOldIndex()) { g2d.setColor(used); }
@@ -59,7 +65,7 @@ public class View extends JPanel {
 			        // Aktfield
 			        g2d.setColor(akt);
 			        g.drawString(c.getAlgo(), marginLeft, windowHeight-marginBottom2-103*factorHeight);
-			        int[] akt_field = m.getAktField();
+			        ArrayList<Integer> akt_field = m.getAktField();
 			        count = 0;
 			        for (int f: akt_field) {
 			        	if (count == m.getUsedIndex()) { g2d.setColor(used); } 
