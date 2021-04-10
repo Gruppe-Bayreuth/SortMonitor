@@ -1,13 +1,23 @@
 package sortmon;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.Timer;
-
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class Controller extends JFrame implements ActionListener{
 	
@@ -20,6 +30,12 @@ public class Controller extends JFrame implements ActionListener{
 	private Model m1;
 	private View v1;
 	private Timer t;
+	private JSlider speed;
+	private JLabel nrOfOperations;
+	private JLabel timeOfCalculation;
+	private JFrame prefWindow;
+	private JButton butt;
+	private JTextField inputFieldsize;
 	private int delay = 100;  // Default-Animationsgeschwindigkeit
 	private String algo = "";
 	
@@ -59,9 +75,8 @@ public class Controller extends JFrame implements ActionListener{
 	   		// Window
 			this.setSize(windowWidth, windowHeight);
 			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			this.setTitle("Sort Monitor");
-			this.add(v1);
 			this.setVisible(true);
+			this.setTitle("Sort Monitor");
 			
 			// Menu
 			JMenuBar menu = new JMenuBar();
@@ -70,6 +85,7 @@ public class Controller extends JFrame implements ActionListener{
 					init.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) {   					
 							m1.init_field(true);
+							setNrOfOperations(0);
 							setAlgo("");
 							repaint();
 							} 
@@ -117,7 +133,15 @@ public class Controller extends JFrame implements ActionListener{
 							sort();
 							} 
 					});
-		
+				JMenu preferences = new JMenu("Preferences");
+					JMenuItem fieldsize = new JMenuItem("Fieldsize");
+					fieldsize.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							JFrame prefWindow = getPrefWindow();
+							prefWindow.setVisible(true);
+							} 
+					});	
+					preferences.add(fieldsize);
 					
 					sort.add(dummy);
 					sort.add(bubble);
@@ -127,10 +151,69 @@ public class Controller extends JFrame implements ActionListener{
 			
 					menu.add(reset);
 					menu.add(sort);
+					menu.add(preferences);
 					
 			this.setJMenuBar(menu);
 			
+			// Layout
+			this.setLayout(new BorderLayout());
+			this.add(v1, BorderLayout.CENTER);
+				JPanel elements = new JPanel();					// Untere Bedienleiste
+				elements.setSize(windowWidth-40, 50);
+				elements.setLayout(new BorderLayout());			
+				elements.add(getNrOfOperations(), BorderLayout.WEST);
+				elements.add(getSlider(), BorderLayout.CENTER);
+				elements.add(getTimeOfCalculation(), BorderLayout.EAST);
+			this.add(elements, BorderLayout.SOUTH); 
    }
+   
+   // Elements
+   private JFrame getPrefWindow() {
+	   	prefWindow = new JFrame("Preferences");
+	   	prefWindow.setSize(300,150);
+	   	prefWindow.setLocationRelativeTo(this);
+		JPanel pan = new JPanel();
+		JLabel fs = new JLabel("Fieldsize (max. 700)");
+		pan.add(fs);
+		inputFieldsize = new JTextField(""+m1.getSize(),4);
+		pan.add(inputFieldsize);
+		butt = new JButton("OK");
+		butt.addActionListener(this);
+		pan.add(butt);
+		prefWindow.add(pan);
+		return prefWindow;
+   }
+   
+   private JSlider getSlider() {									// Regler der Animationsverzögerung
+		speed = new JSlider(0,1000,delay);				// Minimal, Maximal, Default
+		speed.setPreferredSize(new Dimension(windowWidth/3-20,50));	   
+		ChangeListener speedChange = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (t != null) { t.setDelay((int)speed.getValue()); }		// falls Timer schon existiert/Algorithmus schon gewählt wurde
+				delay = (int)speed.getValue();								// zudem wird die Vorbelegungsvariable delay geändert	
+			}	
+		};
+		speed.addChangeListener(speedChange);
+		return speed;
+   }
+     
+   private JLabel getTimeOfCalculation() {
+	   timeOfCalculation = new JLabel("Calculation time");
+	   timeOfCalculation.setHorizontalAlignment(SwingConstants.CENTER);
+	   timeOfCalculation.setVerticalAlignment(SwingConstants.TOP);   
+	   timeOfCalculation.setPreferredSize(new Dimension(windowWidth/3-20,50));
+	   return timeOfCalculation;
+   }
+   
+   private JLabel getNrOfOperations() {
+	   nrOfOperations = new JLabel("Number of operations");
+	   nrOfOperations.setHorizontalAlignment(SwingConstants.CENTER);
+	   nrOfOperations.setVerticalAlignment(SwingConstants.TOP);
+	   nrOfOperations.setPreferredSize(new Dimension(windowWidth/3-20,50));
+	   return nrOfOperations;
+   }
+   
    
     // Getter  und Setter  
 	public String getAlgo() {
@@ -141,8 +224,28 @@ public class Controller extends JFrame implements ActionListener{
 		algo = a;
 	}
 	
+	public void setNrOfOperations(int op) {
+		nrOfOperations.setText("<html><body><center>Number of operations<br>" + op + "</center><body></html>");		
+	}
+	
+	public void setCalculationTime(int ct) {
+		nrOfOperations.setText("<html><body><center>Calculation time<br>" + ct + "</center><body></html>");
+	}
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		if(e.getSource() == butt){
+            int i = Integer.parseInt(inputFieldsize.getText());
+            if (i<3 || i>700) { inputFieldsize.setText(""+m1.getSize()); }
+            else { 
+            	prefWindow.dispose();
+            	m1.delete_field(i);
+            	v1.calc_barWidth();
+            	repaint();
+            }
+          
+            
+        } 
 		
 	}
 }

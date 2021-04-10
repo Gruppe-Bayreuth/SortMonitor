@@ -13,6 +13,9 @@ public class Model {
 	private int currentOldIndex, usedIndex, comparedIndex;			// farblich markierte Indices
 	private boolean ready;
 	
+	private int nOps;												// number Of operations
+	private int caT;												// calculation Time
+	
 	//Standard-SortierVariablen
 	private int step = 0;
 	private int step2 = 0;
@@ -45,6 +48,7 @@ public class Model {
 	public void dummy_sort() {
 		if (step < size) {
 			aktfield[step] = oldfield[size-1-step];
+			numberOfOpsInc(1);
 			setCurrentOldIndex(size-1-step);
 			setUsedIndex(step);
 			setComparedIndex(-1);					
@@ -67,12 +71,14 @@ public class Model {
 					int min = 99;  int indexOfMin = -1;							// Wert auf Max setzen
 					for (int i=0; i<unsorted.size(); i++) {
 						if (unsorted.get(i) <= min) { min = unsorted.get(i); indexOfMin = i; }
+						numberOfOpsInc(1);
 					}
 					
 				// Werte tauschen/entfernen
 				if (indexOfMin != -1) {
 					sorted.add(unsorted.get(indexOfMin));
 					unsorted.remove(indexOfMin);
+					numberOfOpsInc(1);
 				}
 				
 				// Aktfield befüllen
@@ -87,7 +93,8 @@ public class Model {
 					aktfield[count] = i; 
 					//System.out.println("Count Unsorted  " + count + ": " + i); 
 					count++; }
-			
+				numberOfOpsInc(2);
+				
 				// Markierungen
 				setCurrentOldIndex(step);
 				setUsedIndex(sorted.size()-1);
@@ -131,6 +138,8 @@ public class Model {
 					}
 					setCurrentOldIndex(step2);
 					
+					numberOfOpsInc(1);
+											
 					ready = false;
 					step++;
 					
@@ -179,21 +188,26 @@ public class Model {
 				for (int i=left; i < right; i++) {
 					if (aktfield[i] < pivot) { leftArr.add(aktfield[i]); count++; }
 					else { rightArr.add(aktfield[i]); }
+					numberOfOpsInc(1);
 				}
 				
 				// Akt-Array neubefüllen
 				// Left
 				for (int i=0; i<leftArr.size(); i++) {
 					aktfield[left+i] = leftArr.get(i);
+					numberOfOpsInc(1);
 					
 				}
 				// Pivot
 					aktfield[left+count] = pivot;
 					inplace[left+count] = pivot;			// Pivot ins Hilfsarray eintragen --> hat seine feste Position
+					numberOfOpsInc(1);
 					
 				// Right
 				for (int i=0; i<rightArr.size(); i++) {
 						aktfield[left+count+i] = rightArr.get(i);
+						numberOfOpsInc(1);
+						
 					}
 				
 				// Markieren
@@ -223,6 +237,7 @@ public class Model {
 		setComparedIndex(-1);
 		step = 0;
 		step2 = 0;
+		nOps = 0;
 		c.setAlgo("");	
 		ready = false;
 	}
@@ -252,6 +267,12 @@ public class Model {
 		this.aktfield = new int[newsize];
 		
 		init_field(true);		
+	}
+	
+	// Austausch
+	public void numberOfOpsInc(int i) {
+		nOps += i;
+		c.setNrOfOperations(nOps);				// an Controller Bedienfeld schicken
 	}
 	
 	// Getter/Setter
