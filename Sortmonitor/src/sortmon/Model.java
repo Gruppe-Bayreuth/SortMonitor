@@ -1,0 +1,302 @@
+package sortmon;
+import java.util.ArrayList;
+import java.util.Random;
+
+public class Model {
+	
+	Controller c;
+	private int size = 200;											// Größe des Arrays / Zahl der Balken
+	private int[] oldfield = new int[size];
+	private int[] aktfield = new int[size];
+	private int range = 100;										// verwendete Zahlenwerte: 1 - range
+	
+	private int currentOldIndex, usedIndex, comparedIndex;			// farblich markierte Indices
+	private boolean ready;
+	
+	//Standard-SortierVariablen
+	private int step = 0;
+	private int step2 = 0;
+	
+	// SelectionSort-Vars
+	ArrayList<Integer> unsorted = new ArrayList<Integer>();
+	ArrayList<Integer> sorted = new ArrayList<Integer>();
+	
+	// Quicksort-Vars
+	int pivot, left, right;
+	private int[] inplace = new int[size];
+	ArrayList<Integer> leftArr = new ArrayList<Integer>();
+	ArrayList<Integer> rightArr = new ArrayList<Integer>();
+	
+	// Konstruktor
+	public Model(Controller c) {
+		this.c = c;
+		init_field(true);	
+	}
+
+	// Sortieralgorithmen
+	
+	// Jeder Algorithmus wird vom Controller so lange aufgerufen, bis ready = true gesetzt wird
+	// Die Variablen int step und int step2 sind für die Algos reserviert.
+	// int size ist die Größe des Arrays (default: 199)
+	// Mit setCurrentOldIndex() und setUsedIndex() bzw setComparedIndex() werden die aktuell bearbeiteten Schritte des Original- (old) und des aktuellen (new) Arrays farbig (default: gelb) markiert
+	
+	// DummySort - einfache Umkehrung
+	
+	public void dummy_sort() {
+		if (step < size) {
+			aktfield[step] = oldfield[size-1-step];
+			setCurrentOldIndex(size-1-step);
+			setUsedIndex(step);
+			setComparedIndex(-1);					
+			ready = false;
+			step++;
+		}		
+		
+		else {
+			ready = true;
+			step = 0;
+		}
+	}
+	
+	// SelectionSort
+	
+		public void selection_sort() {
+			if (step < size) {
+				if (step == 0) { sorted.clear(); unsorted.clear(); for (int i: oldfield) {	unsorted.add(i); } }  // Komplettkopie nach unsorted beim ersten Aufruf
+				// Minimum in unsorted finden
+					int min = 99;  int indexOfMin = -1;							// Wert auf Max setzen
+					for (int i=0; i<unsorted.size(); i++) {
+						if (unsorted.get(i) <= min) { min = unsorted.get(i); indexOfMin = i; }
+					}
+					
+				// Werte tauschen/entfernen
+				if (indexOfMin != -1) {
+					sorted.add(unsorted.get(indexOfMin));
+					unsorted.remove(indexOfMin);
+				}
+				
+				// Aktfield befüllen
+				// erst sorted
+				int count = 0;
+				for (int i: sorted) { 
+					aktfield[count] = i; 
+					//System.out.println("Count Sorted  " + count + ": " + i); 
+					count++; }
+				// dann unsorted
+				for (int i: unsorted) { 
+					aktfield[count] = i; 
+					//System.out.println("Count Unsorted  " + count + ": " + i); 
+					count++; }
+			
+				// Markierungen
+				setCurrentOldIndex(step);
+				setUsedIndex(sorted.size()-1);
+				
+				// Minimum wurde ja schon aus unsorted entfernt; zur Anzeige wird jetzt nochmal im neuen unsorted das Minimum gesucht - etwas fake
+				min = range;  indexOfMin = -1;							
+				for (int i=0; i<unsorted.size(); i++) {
+					if (unsorted.get(i) < min) { min = unsorted.get(i); indexOfMin = i; }
+				}
+				setComparedIndex(indexOfMin+sorted.size());
+				
+				ready = false;
+				step++;
+			}		
+			
+			else {
+				setCurrentOldIndex(size-1);
+				setUsedIndex(size-1);
+				setComparedIndex(size-1);
+				ready = true;
+				step = 0;
+			}
+		}
+		
+	// BubbleSort
+	
+	public void bubble_sort() {
+		if (step2 < size-1) {     // step2: n-ter Index des "äußeren" / Originalarrays
+				
+			if (step < size-1-step2) {   // step: einzelner Wert wird bis nach rechts durchgeschoben / "inneres" Array
+					if (step == 0 && step2 == 0) { copy_field(); }			// Komplettkopie des Arrays	zu Beginn			
+				
+					if (aktfield[step] > aktfield[step+1]) { 
+						int tmp = aktfield[step+1]; aktfield[step+1] = aktfield[step]; aktfield[step] = tmp;  // größeren Wert nach rechts schieben
+						setUsedIndex(step);
+						setComparedIndex(step+1);
+						}  
+					else { 
+						setUsedIndex(step+1);
+						setComparedIndex(step);
+					}
+					setCurrentOldIndex(step2);
+					
+					ready = false;
+					step++;
+					
+				}		
+				
+			else {
+					setUsedIndex(step+1);		// nächster Durchlauf
+					step2++;
+					step = 0;
+				}
+		}
+		
+		else {									// Ende
+			ready = true;
+			setCurrentOldIndex(size-1);
+			setUsedIndex(size-1);
+			setComparedIndex(size-1);
+			step = 0;
+			step2 = 0;
+			}
+		
+	}
+	
+	// QuickSort
+	
+		public void quick_sort() {
+			leftArr.clear();
+			rightArr.clear();
+			left = -1; right = oldfield.length; // Voreinstellung: gesamtes Array
+			int countRange = 0;
+			// Range finden aus Elementen, die nicht inplace sind, also noch nie Pivot waren
+			for (int i=0; i<inplace.length; i++) {
+				if (inplace[i] == 0 && left == -1) { left = i; right=i; } 
+				if (inplace[i] == 0 && left != -1) { right++; } 
+				if (inplace[i] != 0 && left != -1 && left != right) { i= inplace.length + 100; } // Schleifenabbruch
+			}					
+			
+			//System.out.println("Left: " + left + " - Right: " + right);
+			
+			if (left != -1) {
+				if (aktfield[0] == 0) { copy_field(); }	 // Komplettkopie bei allererstem Durchlauf
+				pivot = aktfield[left];					// immer erstes Element der gefundenen freien Range als Pivot
+					
+				// Linke und rechte Bereiche plus Position des Pivots finden
+				int count = 0;
+				for (int i=left; i < right; i++) {
+					if (aktfield[i] < pivot) { leftArr.add(aktfield[i]); count++; }
+					else { rightArr.add(aktfield[i]); }
+				}
+				
+				// Akt-Array neubefüllen
+				// Left
+				for (int i=0; i<leftArr.size(); i++) {
+					aktfield[left+i] = leftArr.get(i);
+					
+				}
+				// Pivot
+					aktfield[left+count] = pivot;
+					inplace[left+count] = pivot;			// Pivot ins Hilfsarray eintragen --> hat seine feste Position
+					
+				// Right
+				for (int i=0; i<rightArr.size(); i++) {
+						aktfield[left+count+i] = rightArr.get(i);
+					}
+				
+				// Markieren
+				setCurrentOldIndex(left);
+				setComparedIndex(left);
+				setUsedIndex(left+count);	
+			}
+			else { 
+				setCurrentOldIndex(size-1);  // Endmarkierung händisch setzen
+				setUsedIndex(size-1);
+				setComparedIndex(size-1);
+				ready = true; }
+		}
+		
+	// Array
+	
+	public void init_field(boolean both) { 		// wenn true, werden beide Arrays initialisiert; ansonsten nur das Aktfield
+		Random fill = new Random();
+		for (int i=0; i<this.size; i++) {
+			if (both) { this.oldfield[i] = 1 + fill.nextInt(range); }
+			this.aktfield[i] = 0;
+			this.inplace[i] = 0;
+		}
+			
+		setCurrentOldIndex(-1);
+		setUsedIndex(-1);
+		setComparedIndex(-1);
+		step = 0;
+		step2 = 0;
+		c.setAlgo("");	
+		ready = false;
+	}
+	
+	private void copy_field() {
+		int count = 0;
+		for (int i: oldfield) {
+			aktfield[count] = i;
+			count++;
+		}
+	}
+	
+	public void print_field() {
+		String s = "";
+		for (int i: oldfield) {
+			s += i + " ";
+		}
+		System.out.println(s+"\n_____________________________________________________________________________________");
+	}
+	
+	public void delete_field(int newsize) {
+		setSize(newsize);
+		this.oldfield = null;
+		this.aktfield = null;
+		
+		this.oldfield = new int[newsize];
+		this.aktfield = new int[newsize];
+		
+		init_field(true);		
+	}
+	
+	// Getter/Setter
+	
+	public int getSize() {
+		return this.size;
+	}
+	
+	public void setSize(int s) {
+		this.size = s;
+	}
+	
+	public int[] getOldField() {
+		return oldfield;
+	}
+	
+	public int[] getAktField() {
+		return aktfield;
+	}
+	
+	public int getCurrentOldIndex() {
+		return currentOldIndex;
+	}
+	
+	public void setCurrentOldIndex(int ci) {
+		this.currentOldIndex = ci;
+	}
+	
+	public int getUsedIndex() {
+		return usedIndex;
+	}
+	
+	public void setUsedIndex(int ci) {
+		this.usedIndex = ci;
+	}
+	
+	public int getComparedIndex() {
+		return comparedIndex;
+	}
+	
+	public void setComparedIndex(int ci) {
+		this.comparedIndex = ci;
+	}
+	
+	public boolean isFinished() {
+		return ready;
+	}
+}
