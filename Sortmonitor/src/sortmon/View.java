@@ -53,7 +53,7 @@ public class View extends JPanel {
 			        // Oldfield
 			        g2d.setColor(old);
 			        g.drawString("Randomized field", marginLeft, windowHeight-marginBottom-103*factorHeight);
-			        ArrayList<Integer> old_field = m.getOldField();
+			        int[] old_field = m.getOldField();
 			        int count = 0;
 			        for (int f: old_field) {
 			        	if (count == m.getCurrentOldIndex()) { g2d.setColor(used); }
@@ -65,7 +65,7 @@ public class View extends JPanel {
 			        // Aktfield
 			        g2d.setColor(akt);
 			        g.drawString(c.getAlgo(), marginLeft, windowHeight-marginBottom2-103*factorHeight);
-			        ArrayList<Integer> akt_field = m.getAktField();
+			        int[] akt_field = m.getAktField();
 			        count = 0;
 			        for (int f: akt_field) {
 			        	if (count == m.getUsedIndex()) { g2d.setColor(used); } 

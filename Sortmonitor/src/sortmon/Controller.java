@@ -223,8 +223,7 @@ public class Controller extends JFrame implements ActionListener{
 	           if (i<3 || i>1400) { inputFieldsize.setText(""+m1.getSize()); }
 	           else { 
 	           	prefWindow.dispose();
-	           	m1.setSize(i);
-	           	m1.init_field(true);
+	           	m1.resize_field(i);
 	           	v1.calc_barWidth();
 	           	repaint();
 	           } 
