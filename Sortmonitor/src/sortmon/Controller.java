@@ -4,7 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -34,10 +34,11 @@ public class Controller extends JFrame implements ActionListener{
 	private JLabel nrOfOperations;
 	private JLabel timeOfCalculation;
 	private JFrame prefWindow;
-	private JButton butt;
+	private JButton butt, playButt;
 	private JTextField inputFieldsize;
 	private int delay = 100;  // Default-Animationsgeschwindigkeit
 	private String algo = "";
+	private boolean paused;
 	
 	
 	public Controller() {
@@ -54,13 +55,13 @@ public class Controller extends JFrame implements ActionListener{
 		   t = new Timer( delay, new ActionListener() {
 	   
 		   public void actionPerformed( ActionEvent e ) {
-			 if (m1.isFinished() == false) { 
+			 if (!m1.isFinished() && !isPaused()) { 
 				 	switch (getAlgo()) {
 				 		case "Dummy Sort": m1.dummy_sort(); break;
 				 		case "Selection Sort": m1.selection_sort(); break;			 		
 				 		case "Bubble Sort": m1.bubble_sort(); break;
 				 		case "Quick Sort": m1.quick_sort(); break;
-				 		case "Merge Sort": break;
+				 		case "Merge Sort": m1.akz_quick_sort(); break;
 				 	}
 				 }  
 		     repaint();
@@ -162,12 +163,32 @@ public class Controller extends JFrame implements ActionListener{
 				elements.setSize(windowWidth-40, 50);
 				elements.setLayout(new BorderLayout());			
 				elements.add(getNrOfOperations(), BorderLayout.WEST);
-				elements.add(getSlider(), BorderLayout.CENTER);
+				//elements.add(getSlider(), BorderLayout.CENTER);
 				elements.add(getTimeOfCalculation(), BorderLayout.EAST);
+					JPanel buttons = new JPanel();
+					buttons.add(getPlayButton());
+					buttons.add(getSlider());
+				elements.add(buttons, BorderLayout.CENTER);
+					
 			this.add(elements, BorderLayout.SOUTH); 
    }
    
    // Elements
+   private JButton getPlayButton() {
+	   playButt = new JButton();
+	   playButt.setMaximumSize(new Dimension(50,20));
+	   playButt.setFocusable(false);
+	   playButt.setIcon(getIcon("play"));
+	   playButt.addActionListener(this);
+		
+	   return playButt;
+   }
+      
+   private ImageIcon getIcon(String which) {
+	   ImageIcon p = new ImageIcon(getClass().getResource("/"+which+".png"));
+	   return p;
+   }
+   
    private JFrame getPrefWindow() {
 	   	prefWindow = new JFrame("Preferences");
 	   	prefWindow.setSize(300,150);
@@ -186,7 +207,7 @@ public class Controller extends JFrame implements ActionListener{
    
    private JSlider getSlider() {									// Regler der Animationsverzögerung
 		speed = new JSlider(0,1000,delay);				// Minimal, Maximal, Default
-		speed.setPreferredSize(new Dimension(windowWidth/3-20,50));	   
+		speed.setPreferredSize(new Dimension(300,50));	   
 		ChangeListener speedChange = new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -214,26 +235,9 @@ public class Controller extends JFrame implements ActionListener{
 	   return nrOfOperations;
    }
    
-   // ActionListener
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == butt){
-		   if (isParsable()) {
-	           int i = Integer.parseInt(inputFieldsize.getText());
-	           if (i<3 || i>1400) { inputFieldsize.setText(""+m1.getSize()); }
-	           else { 
-	           	prefWindow.dispose();
-	           	m1.resize_field(i);
-	           	v1.calc_barWidth();
-	           	repaint();
-	           } 
-		   }
-       } 	
-	}
-	
-	public boolean isParsable() {
+	public boolean isParsable(String inp) {
 		try {
-	        Integer.parseInt(inputFieldsize.getText());
+	        Integer.parseInt(inp);
 	        return true;
 	    } catch (final NumberFormatException e) {
 	        return false;
@@ -249,6 +253,10 @@ public class Controller extends JFrame implements ActionListener{
 		algo = a;
 	}
 	
+	public boolean isPaused() {
+		return paused;
+	}
+	
 	public void setNrOfOperations(int op) {
 		nrOfOperations.setText("<html><body><center>Number of operations<br>" + op + "</center><body></html>");		
 	}
@@ -256,6 +264,30 @@ public class Controller extends JFrame implements ActionListener{
 	public void setCalculationTime(int ct) {
 		nrOfOperations.setText("<html><body><center>Calculation time<br>" + ct + "</center><body></html>");
 	}
+	
+	   // ActionListener
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(e.getSource() == butt){
+			String inp = inputFieldsize.getText();
+			   if (isParsable(inp)) {
+		           int i = Integer.parseInt(inp);
+		           if (i<3 || i>1400) { inputFieldsize.setText(""+m1.getSize()); }
+		           else { 
+		           	prefWindow.dispose();
+		           	m1.resize_field(i);
+		           	v1.calc_barWidth();
+		           	repaint();
+		           } 
+			   }
+	       } 
+			
+			if(e.getSource() == playButt){
+				   paused = !paused;
+				   if (paused) { playButt.setIcon(getIcon("pause")); }
+				   else { playButt.setIcon(getIcon("play")); }
+		       } 
+		}
 	
 
 }
