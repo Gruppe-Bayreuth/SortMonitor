@@ -15,7 +15,8 @@ To do: (bitte erweitern!)
 - weitere Algorithmen implementieren
 - Messung der Rechenzeit
 - Responsive Design (bei Änderung der Fenstergöße z.B)
-- Performance verbessern: Arrays sind deutlich schneller; Algorithmen verbessern
+- Play/Pause-Button
+- (langfristig) Textfeld für eigene Algorithmen zur Verfügung stellen (noch keine eigene Idee zur Umsetzung)
 - ...
 
 
@@ -45,7 +46,6 @@ Programmaufbau:
 - Die Methode init_field(boolean b) im Model ist wichtig. Hier werden alle Felder/Variablen initialisiert, falls der Nutzer Reset wählt oder einen anderen Algorithmus aufruft. Mit true werden beide Felder initialisiert (oldfield neu mit Zufallszahlen belegt, aktfield gelöscht); mit false wird nur aktfield gelöscht
 
 - Der Controller ist ein JFrame,  dem die View (JPanel), also quasi eine Leinwand, geaddet wird. In der neueren Version wird ein LayoutManager verwendet
-
 
 
 Vorgehensempfehlung: (gerne Hilfestellung für GitHub erweitern)
