@@ -61,7 +61,8 @@ public class Controller extends JFrame implements ActionListener{
 				 		case "Selection Sort": m1.selection_sort(); break;			 		
 				 		case "Bubble Sort": m1.bubble_sort(); break;
 				 		case "Quick Sort": m1.quick_sort(); break;
-				 		case "Merge Sort": m1.akz_quick_sort(); break;
+				 		case "Quick Sort akz": m1.akz_quick_sort(); break;
+				 		case "Merge Sort": break;
 				 	}
 				 }  
 		     repaint();
@@ -126,6 +127,14 @@ public class Controller extends JFrame implements ActionListener{
 							sort();
 							} 
 					});	
+					JMenuItem quickakz = new JMenuItem("QuickSort (akzeleriert)");
+					quickakz.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) { 
+							m1.init_field(false);
+							setAlgo("Quick Sort akz");
+							sort();
+							} 
+					});
 					JMenuItem merge = new JMenuItem("MergeSort");
 					merge.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) { 
@@ -148,6 +157,8 @@ public class Controller extends JFrame implements ActionListener{
 					sort.add(bubble);
 					sort.add(selection);					
 					sort.add(quick);
+					sort.add(quickakz);
+					
 					sort.add(merge);
 			
 					menu.add(reset);

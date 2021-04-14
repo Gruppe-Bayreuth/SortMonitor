@@ -5,7 +5,7 @@ import java.util.Random;
 public class Model {
 	
 	Controller c;
-	private int size = 200;											// Größe des Arrays / Zahl der Balken
+	private int size = 700;											// Größe des Arrays / Zahl der Balken
 	private int[] oldfield = new int[size];
 	private int[] aktfield = new int[size];
 	private int range = 100;										// verwendete Zahlenwerte: 1 - range
@@ -21,14 +21,18 @@ public class Model {
 	private int step2 = 0;
 	
 	// SelectionSort-Vars
-	ArrayList<Integer> unsorted = new ArrayList<Integer>();
-	ArrayList<Integer> sorted = new ArrayList<Integer>();
+	private ArrayList<Integer> unsorted = new ArrayList<Integer>();
+	private ArrayList<Integer> sorted = new ArrayList<Integer>();
 	
 	// Quicksort-Vars
 	int pivot, left, right;
 	private int[] inplace = new int[size];
-	ArrayList<Integer> leftArr = new ArrayList<Integer>();
-	ArrayList<Integer> rightArr = new ArrayList<Integer>();
+	private ArrayList<Integer> leftArr = new ArrayList<Integer>();
+	private ArrayList<Integer> rightArr = new ArrayList<Integer>();
+	
+	// akz Quick
+	private ArrayList<Integer> ranges = new ArrayList<Integer>();
+	private ArrayList<Integer> pivots = new ArrayList<Integer>();
 	
 	// Konstruktor
 	public Model(Controller c) {
@@ -162,14 +166,98 @@ public class Model {
 			}
 		
 	}
-	
+	// akz Quick
+	public void akz_quick_sort() {	
+		leftArr.clear();
+		rightArr.clear();
+		pivots.clear();
+		// im Array ranges werden die noch nicht geteilten Spannen des Feldes gesammelt: immer paarweise und FIFO
+		if (aktfield[0] == 0) { 	// allererster Durchlauf
+			copy_field();
+			ranges.add(0); 			// Vorbelegung: ganzes Feld
+			ranges.add(size); 						
+			} 
+		// Solange es noch Spannen gibt, die nicht komplett ins Aktfield übertragen wurden
+		if (!ranges.isEmpty()) {
+			left = ranges.get(0); right = ranges.get(1);  	// gilt für alle Durchläufe
+			//System.out.println("Left: " + left + " - Right: " + right);
+			
+			// Feld am Pivot aufteilen
+			pivot = aktfield[left];			// erstes Element der Spanne
+			
+			pivots.add(pivot);
+			numberOfOpsInc(1);
+			
+			for (int i = left+1; i < right; i++) {
+				if (aktfield[i] < pivot) { leftArr.add(aktfield[i]); }
+				else if (aktfield[i] == pivot) { pivots.add(aktfield[i]); }
+				else { rightArr.add(aktfield[i]); }
+				numberOfOpsInc(1);				
+			}
+			
+			// // aktfield neu befüllen
+			// links	
+			for (int i = 0; i < leftArr.size(); i++) {
+				aktfield[left+i] = leftArr.get(i);	
+				//System.out.println("Linke Pos "+ (left+i) + ": " + leftArr.get(i));
+				numberOfOpsInc(1);
+				
+			}
+			// Pivots	
+			for (int i = 0; i < pivots.size(); i++) {
+				aktfield[left+leftArr.size()+i] = pivots.get(i);	
+				//System.out.println("Pivotpos "+ (left+leftArr.size()) + ": " + pivots.get(i));
+				numberOfOpsInc(1);
+				
+			}
+			// rechts
+			for (int i = 0; i < rightArr.size(); i++) {
+				aktfield[left+leftArr.size()+pivots.size()+i] = rightArr.get(i);
+				//System.out.println("Rechte Pos: "+ (left+leftArr.size()+pivots.size()+i) +": " + rightArr.get(i));
+				numberOfOpsInc(1);
+				
+			}
+			
+			//System.out.println("Pivot war: " + pivot + " - an Pos: " + pivotpos);
+			// Erste Spanne löschen
+			ranges.remove(0);
+			ranges.remove(0);
+			// Neue Spannen eintragen
+			// LeftArr
+			if (leftArr.size()>1) {
+				ranges.add(left); // left
+				ranges.add(left+leftArr.size()); // right
+				numberOfOpsInc(1);
+				
+			}
+			// RightArr
+			if (rightArr.size()>1) {
+				ranges.add(left+leftArr.size()+pivots.size()); // left
+				ranges.add(left+leftArr.size()+pivots.size()+rightArr.size()); // right
+				numberOfOpsInc(1);
+				
+			}
+			
+			// Markieren
+			setCurrentOldIndex(left);
+			setComparedIndex(left+leftArr.size()+pivots.size());
+			setUsedIndex(left+rightArr.size());
+		}
+		// wenn Ranges abgearbeitet sind
+		else {
+			setCurrentOldIndex(size-1);
+			setUsedIndex(size-1);
+			setComparedIndex(size-1);
+			ready = true;
+		}
+	}
+		
 	// QuickSort
 	
 		public void quick_sort() {
 			leftArr.clear();
 			rightArr.clear();
 			left = -1; right = oldfield.length; // Voreinstellung: gesamtes Array
-			int countRange = 0;
 			// Range finden aus Elementen, die nicht inplace sind, also noch nie Pivot waren
 			for (int i=0; i<inplace.length; i++) {
 				if (inplace[i] == 0 && left == -1) { left = i; right=i; } 
@@ -231,7 +319,8 @@ public class Model {
 			this.aktfield[i] = 0;
 			this.inplace[i] = 0;
 		}
-			
+		ranges.clear();
+		
 		setCurrentOldIndex(-1);
 		setUsedIndex(-1);
 		setComparedIndex(-1);
@@ -252,7 +341,7 @@ public class Model {
 	
 	public void print_field() {
 		String s = "";
-		for (int i: oldfield) {
+		for (int i: aktfield) {
 			s += i + " ";
 		}
 		System.out.println(s+"\n_____________________________________________________________________________________");
