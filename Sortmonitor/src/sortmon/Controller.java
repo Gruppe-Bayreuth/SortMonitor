@@ -36,6 +36,8 @@ public class Controller extends JFrame implements ActionListener{
 	private JFrame prefWindow;
 	private JButton butt, playButt;
 	private JTextField inputFieldsize;
+	ImageIcon pause = new ImageIcon(getClass().getResource("/pause.png"));
+	ImageIcon play = new ImageIcon(getClass().getResource("/play.png"));
 	private int delay = 100;  // Default-Animationsgeschwindigkeit
 	private String algo = "";
 	private boolean paused;
@@ -59,13 +61,14 @@ public class Controller extends JFrame implements ActionListener{
 				 	switch (getAlgo()) {
 				 		case "Dummy Sort": m1.dummy_sort(); break;
 				 		case "Selection Sort": m1.selection_sort(); break;			 		
+				 		case "Gnome Sort": m1.gnome_sort(); break;			 		
 				 		case "Bubble Sort": m1.bubble_sort(); break;
 				 		case "Quick Sort": m1.quick_sort(); break;
-				 		case "Quick Sort akz": m1.akz_quick_sort(); break;
+				 		case "Quick Sort opt": m1.opt_quick_sort(); break;
 				 		case "Merge Sort": break;
 				 	}
-				 }  
-		     repaint();
+				 }
+			repaint();
 		   }
 		 });
 		 t.start(); 
@@ -100,6 +103,7 @@ public class Controller extends JFrame implements ActionListener{
 						public void actionPerformed(ActionEvent e) { 
 							m1.init_field(false);
 							setAlgo("Dummy Sort");
+							playButt.setIcon(pause);
 							sort();
 							} 
 					});
@@ -119,6 +123,14 @@ public class Controller extends JFrame implements ActionListener{
 							sort();
 							} 
 					});
+					JMenuItem gnome = new JMenuItem("GnomeSort");
+					gnome.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) { 
+							m1.init_field(false);
+							setAlgo("Gnome Sort");
+							sort();
+							} 
+					});
 					JMenuItem quick = new JMenuItem("QuickSort");
 					quick.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) { 
@@ -127,11 +139,11 @@ public class Controller extends JFrame implements ActionListener{
 							sort();
 							} 
 					});	
-					JMenuItem quickakz = new JMenuItem("QuickSort (akzeleriert)");
-					quickakz.addActionListener(new ActionListener() {
+					JMenuItem optquick = new JMenuItem("QuickSort (optimiert)");
+					optquick.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) { 
 							m1.init_field(false);
-							setAlgo("Quick Sort akz");
+							setAlgo("Quick Sort opt");
 							sort();
 							} 
 					});
@@ -155,10 +167,10 @@ public class Controller extends JFrame implements ActionListener{
 					
 					sort.add(dummy);
 					sort.add(bubble);
+					sort.add(gnome);					
 					sort.add(selection);					
 					sort.add(quick);
-					sort.add(quickakz);
-					
+					sort.add(optquick);
 					sort.add(merge);
 			
 					menu.add(reset);
@@ -189,17 +201,11 @@ public class Controller extends JFrame implements ActionListener{
 	   playButt = new JButton();
 	   playButt.setMaximumSize(new Dimension(50,20));
 	   playButt.setFocusable(false);
-	   playButt.setIcon(getIcon("play"));
-	   playButt.addActionListener(this);
-		
+	   playButt.setIcon(play);
+	   playButt.addActionListener(this);		
 	   return playButt;
    }
-      
-   private ImageIcon getIcon(String which) {
-	   ImageIcon p = new ImageIcon(getClass().getResource("/"+which+".png"));
-	   return p;
-   }
-   
+            
    private JFrame getPrefWindow() {
 	   	prefWindow = new JFrame("Preferences");
 	   	prefWindow.setSize(300,150);
@@ -272,8 +278,8 @@ public class Controller extends JFrame implements ActionListener{
 		nrOfOperations.setText("<html><body><center>Number of operations<br>" + op + "</center><body></html>");		
 	}
 	
-	public void setCalculationTime(int ct) {
-		nrOfOperations.setText("<html><body><center>Calculation time<br>" + ct + "</center><body></html>");
+	public void setCalculationTime(long ct) {
+		timeOfCalculation.setText("<html><body><center>Calculation time<br>" + ct + " ms</center><body></html>");
 	}
 	
 	   // ActionListener
@@ -295,8 +301,9 @@ public class Controller extends JFrame implements ActionListener{
 			
 			if(e.getSource() == playButt){
 				   paused = !paused;
-				   if (paused) { playButt.setIcon(getIcon("pause")); }
-				   else { playButt.setIcon(getIcon("play")); }
+				   if (m1.isFinished()) { m1.init_field(false); }
+				   if (paused) { playButt.setIcon(play); }
+				   else { playButt.setIcon(pause); }
 		       } 
 		}
 	

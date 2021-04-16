@@ -5,7 +5,7 @@ import java.util.Random;
 public class Model {
 	
 	Controller c;
-	private int size = 700;											// Größe des Arrays / Zahl der Balken
+	private int size = 20;											// Größe des Arrays / Zahl der Balken
 	private int[] oldfield = new int[size];
 	private int[] aktfield = new int[size];
 	private int range = 100;										// verwendete Zahlenwerte: 1 - range
@@ -14,8 +14,8 @@ public class Model {
 	private boolean ready;
 	
 	private int nOps;												// number Of operations
-	private int caT;												// calculation Time
-	
+	private long caT;												// calculation Time
+	private long timeStart, timeEnd;
 	//Standard-SortierVariablen
 	private int step = 0;
 	private int step2 = 0;
@@ -23,6 +23,9 @@ public class Model {
 	// SelectionSort-Vars
 	private ArrayList<Integer> unsorted = new ArrayList<Integer>();
 	private ArrayList<Integer> sorted = new ArrayList<Integer>();
+	
+	// Gnomesort
+	private int lookat;
 	
 	// Quicksort-Vars
 	int pivot, left, right;
@@ -50,6 +53,7 @@ public class Model {
 	// DummySort - einfache Umkehrung
 	
 	public void dummy_sort() {
+		time_start();
 		if (step < size) {
 			aktfield[step] = oldfield[size-1-step];
 			numberOfOpsInc(1);
@@ -64,11 +68,13 @@ public class Model {
 			ready = true;
 			step = 0;
 		}
+		time_stop();	
 	}
 	
 	// SelectionSort
 	
 		public void selection_sort() {
+			time_start();
 			if (step < size) {
 				if (step == 0) { sorted.clear(); unsorted.clear(); for (int i: oldfield) {	unsorted.add(i); } }  // Komplettkopie nach unsorted beim ersten Aufruf
 				// Minimum in unsorted finden
@@ -121,11 +127,39 @@ public class Model {
 				ready = true;
 				step = 0;
 			}
+			time_stop();
 		}
+		// Gnomesort
 		
+		public void gnome_sort() {
+			time_start();
+			int used, compared;
+			if (step == 0) { copy_field(); lookat = 0; }			// Komplettkopie des Arrays	zu Beginn
+			if (lookat < size-1) {
+				if (aktfield[lookat] <= aktfield[lookat+1]) { lookat++; numberOfOpsInc(1); compared = lookat; used = lookat+1; }
+				else { 
+					int tmp=aktfield[lookat]; aktfield[lookat] = aktfield[lookat+1]; aktfield[lookat+1] = tmp; compared = lookat+1; used = lookat;// felder tauschen
+					numberOfOpsInc(2);			
+					if (lookat > 0) { lookat--; } else { lookat++; }
+					} 
+				setCurrentOldIndex(lookat);
+				setUsedIndex(used);
+				setComparedIndex(compared);
+				step++;
+			}
+			else {
+				ready=true; step=0;
+				setCurrentOldIndex(size-1);
+				setUsedIndex(size-1);
+				setComparedIndex(size-1);
+			}
+			time_stop();
+		}
+	
 	// BubbleSort
 	
 	public void bubble_sort() {
+		time_start();
 		if (step2 < size-1) {     // step2: n-ter Index des "äußeren" / Originalarrays
 				
 			if (step < size-1-step2) {   // step: einzelner Wert wird bis nach rechts durchgeschoben / "inneres" Array
@@ -164,10 +198,11 @@ public class Model {
 			step = 0;
 			step2 = 0;
 			}
-		
+		time_stop();
 	}
 	// akz Quick
-	public void akz_quick_sort() {	
+	public void opt_quick_sort() {	
+		time_start();
 		leftArr.clear();
 		rightArr.clear();
 		pivots.clear();
@@ -250,11 +285,13 @@ public class Model {
 			setComparedIndex(size-1);
 			ready = true;
 		}
+		time_stop();
 	}
 		
 	// QuickSort
 	
 		public void quick_sort() {
+			time_start();
 			leftArr.clear();
 			rightArr.clear();
 			left = -1; right = oldfield.length; // Voreinstellung: gesamtes Array
@@ -307,7 +344,9 @@ public class Model {
 				setCurrentOldIndex(size-1);  // Endmarkierung händisch setzen
 				setUsedIndex(size-1);
 				setComparedIndex(size-1);
-				ready = true; }
+				ready = true; 
+				}
+			time_stop();
 		}
 		
 	// Array
@@ -326,8 +365,10 @@ public class Model {
 		setComparedIndex(-1);
 		step = 0;
 		step2 = 0;
+		lookat = 0;
 		nOps = 0;
-		c.setAlgo("");	
+		caT = 0;
+		//c.setAlgo("");	
 		ready = false;
 	}
 	
@@ -360,10 +401,20 @@ public class Model {
 		init_field(true);		
 	}
 	
-	// Austausch
+	// Austausch/Kommunikation
 	public void numberOfOpsInc(int i) {
 		nOps += i;
 		c.setNrOfOperations(nOps);				// an Controller Bedienfeld schicken
+	}
+	
+	private void time_start() {
+		timeStart = System.currentTimeMillis();	
+	}
+	
+	private void time_stop() {
+		timeEnd = System.currentTimeMillis();	
+		caT += timeEnd - timeStart;
+		c.setCalculationTime(caT);
 	}
 	
 	// Getter/Setter
