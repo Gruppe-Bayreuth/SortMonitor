@@ -1,6 +1,7 @@
 package sortmon;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ public class View extends JPanel {
 	private Model m;
 	private Controller c;
 	private int windowWidth, windowHeight;
+	private int range = 100;
 	private int barWidth=5;
 	private int space=2;
 	private int marginLeft = 40;
@@ -25,6 +27,10 @@ public class View extends JPanel {
 	private Color akt = Color.LIGHT_GRAY;
 	private Color used = Color.YELLOW;
 	private Color compared = Color.RED;
+	private Color scale = new Color(30,30,30);
+	private Color headerCol1 = new Color(154,205,50);
+	private Color headerCol2 = new Color(99,184,255);	
+	private Font headers = new Font("Verdana", Font.PLAIN, 18);
 	
 	
 			View(Model m, Controller c, int w, int h) {
@@ -49,10 +55,29 @@ public class View extends JPanel {
 			        g2d.setColor(Color.BLACK);
 			        g2d.fillRect(0, 0, this.getWidth(), this.getHeight());
 			        
+			        // Skala
+			        g2d.setColor(scale);
+			        for (int i = 0; i<5; i++) {
+			        	int ypos = windowHeight-marginBottom-((range*factorHeight)/4*i);
+			        	g.drawLine(20, ypos , windowWidth-50, ypos);
+			        	g.drawString(""+i*range/4, windowWidth-45, ypos+3);			        
+			        }
+			        for (int i = 0; i<5; i++) {
+			        	int ypos = windowHeight-marginBottom2-((100*factorHeight)/4*i);
+			        	g.drawLine(20, ypos , windowWidth-50, ypos);
+			        	g.drawString(""+i*range/4, windowWidth-45, ypos+3);
+			        }
+			        
+			        // Beschriftung
+			        g2d.setColor(headerCol1);
+			        g.setFont(headers);
+			        g.drawString("RANDOMIZED FIELD", windowWidth/2-130, windowHeight-marginBottom-105*factorHeight);
+			        g2d.setColor(headerCol2);
+				    g.drawString(c.getAlgo().toUpperCase(), windowWidth/2-100, windowHeight-marginBottom2-105*factorHeight);
+			        
 			        
 			        // Oldfield
 			        g2d.setColor(old);
-			        g.drawString("Randomized field", marginLeft, windowHeight-marginBottom-103*factorHeight);
 			        int[] old_field = m.getOldField();
 			        int count = 0;
 			        for (int f: old_field) {
@@ -64,7 +89,6 @@ public class View extends JPanel {
 			        
 			        // Aktfield
 			        g2d.setColor(akt);
-			        g.drawString(c.getAlgo(), marginLeft, windowHeight-marginBottom2-103*factorHeight);
 			        int[] akt_field = m.getAktField();
 			        count = 0;
 			        for (int f: akt_field) {
