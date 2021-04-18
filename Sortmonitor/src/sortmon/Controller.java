@@ -41,6 +41,7 @@ public class Controller extends JFrame implements ActionListener{
 	private int delay = 100;  // Default-Animationsgeschwindigkeit
 	private String algo = "";
 	private boolean paused;
+	private long calcTimeStart, calcTimeEnd, calculationTime;
 	
 	
 	public Controller() {
@@ -58,21 +59,48 @@ public class Controller extends JFrame implements ActionListener{
 	   
 		   public void actionPerformed( ActionEvent e ) {
 			 if (!m1.isFinished() && !isPaused()) { 
-				 	switch (getAlgo()) {
+				 	calctimeStart();
+			 		switch (getAlgo()) {
 				 		case "Dummy Sort": m1.dummy_sort(); break;
 				 		case "Selection Sort": m1.selection_sort(); break;			 		
 				 		case "Gnome Sort": m1.gnome_sort(); break;			 		
 				 		case "Bubble Sort": m1.bubble_sort(); break;
 				 		case "Quick Sort": m1.quick_sort(); break;
 				 		case "Quick Sort opt": m1.opt_quick_sort(); break;
-				 		case "Merge Sort": break;
+				 		case "Radix Sort": m1.radix_sort(); break;
 				 	}
+			 		calctimeEnd();
 				 }
 			repaint();
 		   }
 		 });
 		 t.start(); 
 	   }
+   }
+   
+   // Start des Algorithmus
+   private void startAlgo(String which) {
+	   	m1.init_field(false);
+	   	resetTime();
+		setAlgo(which);
+		sort();
+	}
+   
+   // Zeitmessung
+   private void calctimeStart() {
+	   calcTimeStart = System.currentTimeMillis();
+   }
+   
+   private void calctimeEnd() {
+	   calcTimeEnd = System.currentTimeMillis();
+	   calculationTime += calcTimeEnd-calcTimeStart;
+	   setCalculationTime(calculationTime);
+	 }
+   
+   public void resetTime() {
+	   calcTimeStart = 0;
+	   calcTimeEnd = 0;
+	   calculationTime = 0;
    }
    
    // GUI
@@ -91,68 +119,56 @@ public class Controller extends JFrame implements ActionListener{
 						public void actionPerformed(ActionEvent e) {   					
 							m1.init_field(true);
 							setNrOfOperations(0);
+							resetTime();
 							setAlgo("");
 							repaint();
 							} 
 					});	
 					reset.add(init);
 					
+				
+					
 				JMenu sort = new JMenu("Algorithm");
 					JMenuItem dummy = new JMenuItem("DummySort");
 					dummy.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) { 
-							m1.init_field(false);
-							setAlgo("Dummy Sort");
-							playButt.setIcon(pause);
-							sort();
+							startAlgo("Dummy Sort");
 							} 
 					});
 					JMenuItem bubble = new JMenuItem("BubbleSort");
 					bubble.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) { 
-							m1.init_field(false);
-							setAlgo("Bubble Sort");
-							sort();
+							startAlgo("Bubble Sort");
 							} 
 					});	
 					JMenuItem selection = new JMenuItem("SelectionSort");
 					selection.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) { 
-							m1.init_field(false);
-							setAlgo("Selection Sort");
-							sort();
+							startAlgo("Selection Sort");					
 							} 
 					});
 					JMenuItem gnome = new JMenuItem("GnomeSort");
 					gnome.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) { 
-							m1.init_field(false);
-							setAlgo("Gnome Sort");
-							sort();
+							startAlgo("Gnome Sort");
 							} 
 					});
 					JMenuItem quick = new JMenuItem("QuickSort");
 					quick.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) { 
-							m1.init_field(false);
-							setAlgo("Quick Sort");
-							sort();
+							startAlgo("Quick Sort");
 							} 
 					});	
 					JMenuItem optquick = new JMenuItem("QuickSort (optimiert)");
 					optquick.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) { 
-							m1.init_field(false);
-							setAlgo("Quick Sort opt");
-							sort();
+							startAlgo("Quick Sort opt");
 							} 
 					});
-					JMenuItem merge = new JMenuItem("MergeSort");
-					merge.addActionListener(new ActionListener() {
+					JMenuItem radix = new JMenuItem("RadixSort");
+					radix.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) { 
-							m1.init_field(false);
-							setAlgo("Merge Sort");
-							sort();
+							startAlgo("Radix Sort");
 							} 
 					});
 				JMenu preferences = new JMenu("Preferences");
@@ -171,7 +187,7 @@ public class Controller extends JFrame implements ActionListener{
 					sort.add(selection);					
 					sort.add(quick);
 					sort.add(optquick);
-					sort.add(merge);
+					sort.add(radix);
 			
 					menu.add(reset);
 					menu.add(sort);
@@ -192,6 +208,7 @@ public class Controller extends JFrame implements ActionListener{
 					buttons.add(getPlayButton());
 					buttons.add(getSlider());
 				elements.add(buttons, BorderLayout.CENTER);
+				elements.setVisible(true);
 					
 			this.add(elements, BorderLayout.SOUTH); 
    }
@@ -301,7 +318,7 @@ public class Controller extends JFrame implements ActionListener{
 			
 			if(e.getSource() == playButt){
 				   paused = !paused;
-				   if (m1.isFinished()) { m1.init_field(false); }
+				   if (m1.isFinished()) { m1.init_field(false); resetTime(); }
 				   if (paused) { playButt.setIcon(play); }
 				   else { playButt.setIcon(pause); }
 		       } 

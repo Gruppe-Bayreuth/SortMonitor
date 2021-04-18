@@ -5,7 +5,7 @@ import java.util.Random;
 public class Model {
 	
 	Controller c;
-	private int size = 20;											// Größe des Arrays / Zahl der Balken
+	private int size = 200;											// Größe des Arrays / Zahl der Balken
 	private int[] oldfield = new int[size];
 	private int[] aktfield = new int[size];
 	private int range = 100;										// verwendete Zahlenwerte: 1 - range
@@ -14,8 +14,6 @@ public class Model {
 	private boolean ready;
 	
 	private int nOps;												// number Of operations
-	private long caT;												// calculation Time
-	private long timeStart, timeEnd;
 	//Standard-SortierVariablen
 	private int step = 0;
 	private int step2 = 0;
@@ -33,9 +31,12 @@ public class Model {
 	private ArrayList<Integer> leftArr = new ArrayList<Integer>();
 	private ArrayList<Integer> rightArr = new ArrayList<Integer>();
 	
-	// akz Quick
+	// opt Quick
 	private ArrayList<Integer> ranges = new ArrayList<Integer>();
 	private ArrayList<Integer> pivots = new ArrayList<Integer>();
+	
+	// Radix	
+	private ArrayList[] distribution = new ArrayList[11];	
 	
 	// Konstruktor
 	public Model(Controller c) {
@@ -53,7 +54,6 @@ public class Model {
 	// DummySort - einfache Umkehrung
 	
 	public void dummy_sort() {
-		time_start();
 		if (step < size) {
 			aktfield[step] = oldfield[size-1-step];
 			numberOfOpsInc(1);
@@ -68,13 +68,11 @@ public class Model {
 			ready = true;
 			step = 0;
 		}
-		time_stop();	
 	}
 	
 	// SelectionSort
 	
 		public void selection_sort() {
-			time_start();
 			if (step < size) {
 				if (step == 0) { sorted.clear(); unsorted.clear(); for (int i: oldfield) {	unsorted.add(i); } }  // Komplettkopie nach unsorted beim ersten Aufruf
 				// Minimum in unsorted finden
@@ -127,12 +125,10 @@ public class Model {
 				ready = true;
 				step = 0;
 			}
-			time_stop();
 		}
 		// Gnomesort
 		
 		public void gnome_sort() {
-			time_start();
 			int used, compared;
 			if (step == 0) { copy_field(); lookat = 0; }			// Komplettkopie des Arrays	zu Beginn
 			if (lookat < size-1) {
@@ -153,13 +149,11 @@ public class Model {
 				setUsedIndex(size-1);
 				setComparedIndex(size-1);
 			}
-			time_stop();
 		}
 	
 	// BubbleSort
 	
 	public void bubble_sort() {
-		time_start();
 		if (step2 < size-1) {     // step2: n-ter Index des "äußeren" / Originalarrays
 				
 			if (step < size-1-step2) {   // step: einzelner Wert wird bis nach rechts durchgeschoben / "inneres" Array
@@ -198,11 +192,9 @@ public class Model {
 			step = 0;
 			step2 = 0;
 			}
-		time_stop();
 	}
 	// akz Quick
 	public void opt_quick_sort() {	
-		time_start();
 		leftArr.clear();
 		rightArr.clear();
 		pivots.clear();
@@ -285,13 +277,11 @@ public class Model {
 			setComparedIndex(size-1);
 			ready = true;
 		}
-		time_stop();
 	}
 		
 	// QuickSort
 	
 		public void quick_sort() {
-			time_start();
 			leftArr.clear();
 			rightArr.clear();
 			left = -1; right = oldfield.length; // Voreinstellung: gesamtes Array
@@ -346,8 +336,45 @@ public class Model {
 				setComparedIndex(size-1);
 				ready = true; 
 				}
-			time_stop();
 		}
+	
+	// Radix-Sort
+	public void radix_sort() {
+		int loc=0;
+		if (step == 0 && step2 == 0) { 													// nur am Anfang
+			copy_field();
+			for (int i = 0; i<11; i++) { distribution[i] = new ArrayList<Integer>(); } 	// Zehn ArrayLists in Array Distribution
+		}
+			
+		// ArrayLists befüllen nach 10er Wurzel
+			int frequence = size/5; 
+			//for (int i = step2*frequence; i < (step2+1)*frequence; i++) {				// Aufteilung, da insgesamt nur 3 Schritte durchzuführen sind
+			for (int i = 0; i < size; i++) {				
+					if (step == 0) { loc = aktfield[i]%10; }							// nach letzter Ziffer einordnen
+					else if (step == 1 && aktfield[i]!= 100 ){ loc = aktfield[i]/10; } 	// nach vorletzter Ziffer
+					else { loc = 10;}													// wenn Zahl == 100
+				
+					distribution[loc].add(aktfield[i]);									// der jeweiligen Arraylist anhängen
+			
+			
+		
+					// Übertrag in aktfield
+					int counter = 0;
+					for (int ii=0; ii<=10; ii++) {
+						for (int el=0; el < distribution[ii].size(); el++) {
+							if ((int) distribution[ii].get(el)!=0) { 
+								aktfield[counter] = (int) distribution[ii].get(el);
+								counter++;
+							}			
+						}
+					}
+			}
+		//step2++;
+		//System.out.println("Step " + step + " - Step2 " + step2);
+		//print_field();
+		for (int i=0; i<10; i++) { distribution[i].clear(); }			//Verteilungslisten wieder löschen
+		if (step>=1) { ready = true; } else { step++; }
+	}
 		
 	// Array
 	
@@ -367,8 +394,6 @@ public class Model {
 		step2 = 0;
 		lookat = 0;
 		nOps = 0;
-		caT = 0;
-		//c.setAlgo("");	
 		ready = false;
 	}
 	
@@ -405,16 +430,6 @@ public class Model {
 	public void numberOfOpsInc(int i) {
 		nOps += i;
 		c.setNrOfOperations(nOps);				// an Controller Bedienfeld schicken
-	}
-	
-	private void time_start() {
-		timeStart = System.currentTimeMillis();	
-	}
-	
-	private void time_stop() {
-		timeEnd = System.currentTimeMillis();	
-		caT += timeEnd - timeStart;
-		c.setCalculationTime(caT);
 	}
 	
 	// Getter/Setter
