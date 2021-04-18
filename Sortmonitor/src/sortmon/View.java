@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
@@ -23,6 +22,7 @@ public class View extends JPanel {
 	private int marginBottom = 520;
 	private int marginBottom2 = 150;
 	private int factorHeight = 3;
+	private int nrOfScaleRows = 20;
 	private Color old = Color.GRAY;
 	private Color akt = Color.LIGHT_GRAY;
 	private Color used = Color.YELLOW;
@@ -52,20 +52,25 @@ public class View extends JPanel {
 			
 				public void paintComponent(Graphics g) {
 			        Graphics2D g2d = (Graphics2D) g;
+			        
+			        // Hintergrund
 			        g2d.setColor(Color.BLACK);
 			        g2d.fillRect(0, 0, this.getWidth(), this.getHeight());
 			        
 			        // Skala
+			        int mod =1;
 			        g2d.setColor(scale);
-			        for (int i = 0; i<5; i++) {
-			        	int ypos = windowHeight-marginBottom-((range*factorHeight)/4*i);
+			        for (int i = 0; i<=nrOfScaleRows; i++) {
+			        	int ypos = windowHeight-marginBottom-((range*factorHeight)/nrOfScaleRows*i);
 			        	g.drawLine(20, ypos , windowWidth-50, ypos);
-			        	g.drawString(""+i*range/4, windowWidth-45, ypos+3);			        
+			        	if (nrOfScaleRows > 30) { mod=2; } else { mod=1; }
+			        	if (i%mod==0) { g.drawString(""+i*range/nrOfScaleRows, windowWidth-45, ypos+3); }			        
 			        }
-			        for (int i = 0; i<5; i++) {
-			        	int ypos = windowHeight-marginBottom2-((100*factorHeight)/4*i);
+			        for (int i = 0; i<=nrOfScaleRows; i++) {
+			        	int ypos = windowHeight-marginBottom2-((range*factorHeight)/nrOfScaleRows*i);
 			        	g.drawLine(20, ypos , windowWidth-50, ypos);
-			        	g.drawString(""+i*range/4, windowWidth-45, ypos+3);
+			        	if (nrOfScaleRows > 30) { mod=2; } else { mod=1; }
+			        	if (i%mod==0) { g.drawString(""+i*range/nrOfScaleRows, windowWidth-45, ypos+3); }
 			        }
 			        
 			        // Beschriftung
@@ -100,4 +105,14 @@ public class View extends JPanel {
 			        }
 			        
 			}
+				
+		// Getter/Setter
+		public int getScaleRows() {
+			return nrOfScaleRows;
+		}
+		
+		public void setScaleRows(int sr) {
+			nrOfScaleRows = sr;
+		}
+				
 }

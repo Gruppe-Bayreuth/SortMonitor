@@ -34,7 +34,7 @@ public class Controller extends JFrame implements ActionListener{
 	private JLabel nrOfOperations;
 	private JLabel timeOfCalculation;
 	private JFrame prefWindow;
-	private JButton butt, playButt;
+	private JButton butt, playButt, scaleButt;
 	private JTextField inputFieldsize;
 	ImageIcon pause = new ImageIcon(getClass().getResource("/pause.png"));
 	ImageIcon play = new ImageIcon(getClass().getResource("/play.png"));
@@ -181,6 +181,16 @@ public class Controller extends JFrame implements ActionListener{
 					});	
 					preferences.add(fieldsize);
 					
+					JMenuItem scaleRows = new JMenuItem("Scalerows");
+					scaleRows.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							JFrame scaleRowWindow = getscaleRowWindow();
+							scaleRowWindow.setVisible(true);
+							} 
+					});	
+					preferences.add(fieldsize);
+					preferences.add(scaleRows);
+					
 					sort.add(dummy);
 					sort.add(bubble);
 					sort.add(gnome);					
@@ -239,6 +249,21 @@ public class Controller extends JFrame implements ActionListener{
 		return prefWindow;
    }
    
+   private JFrame getscaleRowWindow() {
+	   	prefWindow = new JFrame("Preferences");
+	   	prefWindow.setSize(300,150);
+	   	prefWindow.setLocationRelativeTo(this);
+		JPanel pan = new JPanel();
+		JLabel fs = new JLabel("Scalerows (max. 50)");
+		pan.add(fs);
+		inputFieldsize = new JTextField(""+v1.getScaleRows(),4);
+		pan.add(inputFieldsize);
+		scaleButt = new JButton("OK");
+		scaleButt.addActionListener(this);
+		pan.add(scaleButt);
+		prefWindow.add(pan);
+		return prefWindow;
+  }
    private JSlider getSlider() {									// Regler der Animationsverzögerung
 		speed = new JSlider(0,1000,delay);				// Minimal, Maximal, Default
 		speed.setPreferredSize(new Dimension(300,50));	   
@@ -315,6 +340,19 @@ public class Controller extends JFrame implements ActionListener{
 		           } 
 			   }
 	       } 
+			
+			if(e.getSource() == scaleButt){
+				String inp = inputFieldsize.getText();
+				   if (isParsable(inp)) {
+			           int i = Integer.parseInt(inp);
+			           if (i<1 || i>50) { inputFieldsize.setText(""+v1.getScaleRows()); }
+			           else { 
+			           	prefWindow.dispose();
+			           	v1.setScaleRows(i);
+			           	repaint();
+			           } 
+				   }
+		       } 
 			
 			if(e.getSource() == playButt){
 				   paused = !paused;
