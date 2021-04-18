@@ -37,6 +37,8 @@ public class Model {
 	
 	// Radix	
 	private ArrayList[] distribution = new ArrayList[11];	
+	private int part, counter, puff;
+	private boolean done;
 	
 	// Konstruktor
 	public Model(Controller c) {
@@ -341,39 +343,57 @@ public class Model {
 	// Radix-Sort
 	public void radix_sort() {
 		int loc=0;
-		if (step == 0 && step2 == 0) { 													// nur am Anfang
+		if (step == 0 && !done) { 													// nur am Anfang
 			copy_field();
-			for (int i = 0; i<11; i++) { distribution[i] = new ArrayList<Integer>(); } 	// Zehn ArrayLists in Array Distribution
+			for (int i = 0; i<10; i++) { distribution[i] = new ArrayList<Integer>(); } 	// Zehn ArrayLists in Array Distribution
 		}
 			
-		// ArrayLists befüllen nach 10er Wurzel
-			int frequence = size/5; 
-			//for (int i = step2*frequence; i < (step2+1)*frequence; i++) {				// Aufteilung, da insgesamt nur 3 Schritte durchzuführen sind
-			for (int i = 0; i < size; i++) {				
-					if (step == 0) { loc = aktfield[i]%10; }							// nach letzter Ziffer einordnen
-					else if (step == 1 && aktfield[i]!= 100 ){ loc = aktfield[i]/10; } 	// nach vorletzter Ziffer
-					else { loc = 10;}													// wenn Zahl == 100
-				
-					distribution[loc].add(aktfield[i]);									// der jeweiligen Arraylist anhängen
-			
-			
-		
-					// Übertrag in aktfield
-					int counter = 0;
-					for (int ii=0; ii<=10; ii++) {
-						for (int el=0; el < distribution[ii].size(); el++) {
-							if ((int) distribution[ii].get(el)!=0) { 
-								aktfield[counter] = (int) distribution[ii].get(el);
-								counter++;
-							}			
-						}
+		// ArrayLists (distribution) befüllen je nach Ziffer
+		if (!done) {
+					for (int i = 0; i < size; i++) {						
+						if (step == 0) { loc = aktfield[i]%10; }							// nach letzter Ziffer einordnen
+						else { loc = (aktfield[i]/(int) Math.pow(10,step))%10; } 			// nach vor-/dritt (step-)letzter Ziffer
+						distribution[loc].add(aktfield[i]);									// der jeweiligen Arraylist anhängen
+						numberOfOpsInc(1);
 					}
+					done = true;
 			}
-		//step2++;
-		//System.out.println("Step " + step + " - Step2 " + step2);
+		
+		// Übertrag in aktfield
+			for (int el=0; el < distribution[part].size(); el++) {
+					if ((int) distribution[part].get(el)!=0) { 
+						aktfield[counter] = (int) distribution[part].get(el);
+						counter++;
+						numberOfOpsInc(1);
+					}			
+				}
+		//Markieren
+		setCurrentOldIndex(counter);
+		int used = 0;
+		used = counter%size + puff*size/10;
+		if (counter == size) { puff++; }
+		setUsedIndex(used);
+		int compared = used + distribution[part].size();
+		setComparedIndex(compared);	
+		
 		//print_field();
-		for (int i=0; i<10; i++) { distribution[i].clear(); }			//Verteilungslisten wieder löschen
-		if (step>=1) { ready = true; } else { step++; }
+		
+		// Verlauf
+		if (step>=2 && part > 8) { 		// Komplett durch
+			part = 0; 
+			for (int i=0; i<10; i++) { distribution[i].clear(); }
+			done = false; counter = 0; step=0; ready = true;
+			setCurrentOldIndex(size-1);
+			setComparedIndex(size-1);
+			setUsedIndex(size-1);
+			} 
+		else { 
+			if (part > 8) {														// wenn alle Teile einer Distribution eingetragen wurden
+				for (int i=0; i<10; i++) { distribution[i].clear(); }			//Verteilungslisten wieder löschen für die
+				step++; done = false; part = 0;	counter = 0;					// nächste Ziffer
+				}
+			else { part++; }
+			}					
 	}
 		
 	// Array
@@ -394,6 +414,8 @@ public class Model {
 		step2 = 0;
 		lookat = 0;
 		nOps = 0;
+		part = 0; 
+		done = false; counter = 0;
 		ready = false;
 	}
 	
