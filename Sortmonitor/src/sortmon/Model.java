@@ -5,10 +5,9 @@ import java.util.Random;
 public class Model {
 	
 	Controller c;
-	private int size = 200;											// Größe des Arrays / Zahl der Balken
-	private int[] oldfield = new int[size];
-	private int[] aktfield = new int[size];
-	private int range = 1000;										// verwendete Zahlenwerte: 1 - range
+	private int size, range;											// Größe des Arrays / Range der Zahlen
+	private int[] oldfield;
+	private int[] aktfield;
 	
 	private int currentOldIndex, usedIndex, comparedIndex;			// farblich markierte Indices
 	private boolean ready;
@@ -27,7 +26,7 @@ public class Model {
 	
 	// Quicksort-Vars
 	int pivot, left, right;
-	private int[] inplace = new int[size];
+	private int[] inplace;
 	private ArrayList<Integer> leftArr = new ArrayList<Integer>();
 	private ArrayList<Integer> rightArr = new ArrayList<Integer>();
 	
@@ -41,8 +40,13 @@ public class Model {
 	private boolean done;
 	
 	// Konstruktor
-	public Model(Controller c) {
+	public Model(Controller c, int s, int r) {
 		this.c = c;
+		this.size = s;
+		this.range = r;
+		this.oldfield = new int[s];
+		this.aktfield = new int[s];
+		this.inplace = new int[s];
 		init_field(true);	
 	}
 
@@ -400,7 +404,7 @@ public class Model {
 	public void init_field(boolean both) { 		// wenn true, werden beide Arrays initialisiert; ansonsten nur das Aktfield
 		Random fill = new Random();
 		for (int i=0; i<this.size; i++) {
-			if (both) { this.oldfield[i] = 1 + fill.nextInt(range); }
+			if (both) { this.oldfield[i] = 1 + fill.nextInt(this.range); }
 			this.aktfield[i] = 0;
 			this.inplace[i] = 0;
 		}

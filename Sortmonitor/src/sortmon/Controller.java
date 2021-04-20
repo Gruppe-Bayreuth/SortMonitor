@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.prefs.Preferences;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -42,12 +44,18 @@ public class Controller extends JFrame implements ActionListener{
 	private String algo = "";
 	private boolean paused;
 	private long calcTimeStart, calcTimeEnd, calculationTime;
-	
+	private Preferences prefs;
 	
 	public Controller() {
-	// Entwurfsmuster
-				m1 = new Model(this);
-				v1 = new View(m1,this,windowWidth,windowHeight);		// = JPanel
+				// Voreinstellungen laden
+				prefs = Preferences.userRoot().node(this.getClass().getName());
+				int size = prefs.getInt("size", 200);	// Fieldsize
+				int range = prefs.getInt("range", 100);	// Range of numbers: von 1....range
+				int scalerows = prefs.getInt("scalerows", 20); // Scalerows
+				
+				// Entwurfsmuster
+				m1 = new Model(this, size, range);
+				v1 = new View(m1,this,windowWidth,windowHeight,scalerows);		// = JPanel
 				v1.setSize(windowWidth-10, windowHeight-110);
 				setup_GUI();
 	}
@@ -365,6 +373,7 @@ public class Controller extends JFrame implements ActionListener{
 		           	prefWindow.dispose();
 		           	m1.resize_field(i);
 		           	v1.calc_View();
+		           	prefs.putInt("size", i);
 		           	repaint();
 		           } 
 			   }
@@ -378,7 +387,8 @@ public class Controller extends JFrame implements ActionListener{
 			           else { 
 			           	prefWindow.dispose();
 			           	v1.setScaleRows(i);
-			           	v1.calc_View();			           	
+			           	v1.calc_View();
+			           	prefs.putInt("scalerows", i);			           
 			           	repaint();
 			           } 
 				   }
@@ -392,7 +402,8 @@ public class Controller extends JFrame implements ActionListener{
 			           	prefWindow.dispose();
 			           	m1.setRange(i);
 			           	m1.init_field(true);
-			           	v1.calc_View();			           	
+			           	v1.calc_View();
+			           	prefs.putInt("range", i);			           
 			           	repaint();
 			           } 
 				   }

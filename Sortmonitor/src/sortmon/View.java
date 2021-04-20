@@ -22,7 +22,7 @@ public class View extends JPanel {
 	private int marginBottom = 520;
 	private int marginBottom2 = 150;
 	private float factorHeight = 3;
-	private int nrOfScaleRows = 20;
+	private int nrOfScaleRows;
 	private int mod = 1;
 	private Color old = Color.GRAY;
 	private Color akt = Color.LIGHT_GRAY;
@@ -34,9 +34,10 @@ public class View extends JPanel {
 	private Font headers = new Font("Verdana", Font.PLAIN, 18);
 	
 	
-			View(Model m, Controller c, int w, int h) {
+			View(Model m, Controller c, int w, int h, int ns) {
 					this.windowWidth = w;
 					this.windowHeight = h;
+					this.nrOfScaleRows = ns;
 					this.m = m;		
 					this.c = c;
 					calc_View();
