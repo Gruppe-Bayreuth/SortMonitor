@@ -40,7 +40,7 @@ public class Controller extends JFrame implements ActionListener{
 	private JTextField inputFieldsize;
 	ImageIcon pause = new ImageIcon(getClass().getResource("/pause.png"));
 	ImageIcon play = new ImageIcon(getClass().getResource("/play.png"));
-	private int delay = 100;  // Default-Animationsgeschwindigkeit
+	private int delay;  // Default-Animationsgeschwindigkeit
 	private String algo = "";
 	private boolean paused;
 	private long calcTimeStart, calcTimeEnd, calculationTime;
@@ -52,6 +52,7 @@ public class Controller extends JFrame implements ActionListener{
 				int size = prefs.getInt("size", 200);	// Fieldsize
 				int range = prefs.getInt("range", 100);	// Range of numbers: von 1....range
 				int scalerows = prefs.getInt("scalerows", 20); // Scalerows
+				this.delay = prefs.getInt("delay", 100); // Geschwindigkeit
 				
 				// Entwurfsmuster
 				m1 = new Model(this, size, range);
@@ -309,6 +310,7 @@ public class Controller extends JFrame implements ActionListener{
 			public void stateChanged(ChangeEvent e) {
 				if (t != null) { t.setDelay((int)speed.getValue()); }		// falls Timer schon existiert/Algorithmus schon gewählt wurde
 				delay = (int)speed.getValue();								// zudem wird die Vorbelegungsvariable delay geändert	
+				prefs.putInt("delay", delay);
 			}	
 		};
 		speed.addChangeListener(speedChange);
@@ -316,7 +318,7 @@ public class Controller extends JFrame implements ActionListener{
    }
      
    private JLabel getTimeOfCalculation() {
-	   timeOfCalculation = new JLabel("Calculation time");
+	   timeOfCalculation = new JLabel();
 	   timeOfCalculation.setHorizontalAlignment(SwingConstants.CENTER);
 	   timeOfCalculation.setVerticalAlignment(SwingConstants.TOP);   
 	   timeOfCalculation.setPreferredSize(new Dimension(windowWidth/3-20,50));
@@ -324,7 +326,7 @@ public class Controller extends JFrame implements ActionListener{
    }
    
    private JLabel getNrOfOperations() {
-	   nrOfOperations = new JLabel("Number of operations");
+	   nrOfOperations = new JLabel();
 	   nrOfOperations.setHorizontalAlignment(SwingConstants.CENTER);
 	   nrOfOperations.setVerticalAlignment(SwingConstants.TOP);
 	   nrOfOperations.setPreferredSize(new Dimension(windowWidth/3-20,50));
@@ -354,11 +356,11 @@ public class Controller extends JFrame implements ActionListener{
 	}
 	
 	public void setNrOfOperations(int op) {
-		nrOfOperations.setText("<html><body><center>Number of operations<br>" + op + "</center><body></html>");		
+		nrOfOperations.setText("<html><body><br><center>Number of operations<br>" + op + "</center><body></html>");		
 	}
 	
 	public void setCalculationTime(long ct) {
-		timeOfCalculation.setText("<html><body><center>Calculation time<br>" + ct + " ms</center><body></html>");
+		timeOfCalculation.setText("<html><body><br><center>Calculation time<br>" + ct + " ms</center><body></html>");
 	}
 	
 	   // ActionListener

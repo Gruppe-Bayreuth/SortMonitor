@@ -89,11 +89,10 @@ public class View extends JPanel {
 			        // Beschriftung
 			        g2d.setColor(headerCol1);
 			        g.setFont(headers);
-			        g.drawString("RANDOMIZED FIELD", windowWidth/2-125, (int) (windowHeight-marginBottom-(range*factorHeight+20)));
+			        g.drawString("RANDOMIZED FIELD", windowWidth/2-128, (int) (windowHeight-marginBottom-(range*factorHeight+20)));
 			        g2d.setColor(headerCol2);
 				    g.drawString(c.getAlgo().toUpperCase(), windowWidth/2-100, (int) (windowHeight-marginBottom2-(range*factorHeight+20)));
-			        
-			        
+			        			        
 			        // Oldfield
 			        g2d.setColor(old);
 			        int[] old_field = m.getOldField();
