@@ -34,7 +34,7 @@ public class Controller extends JFrame implements ActionListener{
 	private JLabel nrOfOperations;
 	private JLabel timeOfCalculation;
 	private JFrame prefWindow;
-	private JButton butt, playButt, scaleButt;
+	private JButton butt, playButt, scaleButt, rangeButt;
 	private JTextField inputFieldsize;
 	ImageIcon pause = new ImageIcon(getClass().getResource("/pause.png"));
 	ImageIcon play = new ImageIcon(getClass().getResource("/play.png"));
@@ -58,7 +58,8 @@ public class Controller extends JFrame implements ActionListener{
 		   t = new Timer( delay, new ActionListener() {
 	   
 		   public void actionPerformed( ActionEvent e ) {
-			 if (!m1.isFinished() && !isPaused()) { 
+			 if (!m1.isFinished() && !isPaused()) {
+				    playButt.setIcon(pause);
 				 	calctimeStart();
 			 		switch (getAlgo()) {
 				 		case "Dummy Sort": m1.dummy_sort(); break;
@@ -71,6 +72,8 @@ public class Controller extends JFrame implements ActionListener{
 				 	}
 			 		calctimeEnd();
 				 }
+			 else { playButt.setIcon(play); }
+		 		
 			repaint();
 		   }
 		 });
@@ -188,8 +191,18 @@ public class Controller extends JFrame implements ActionListener{
 							scaleRowWindow.setVisible(true);
 							} 
 					});	
+					
+					JMenuItem range = new JMenuItem("Range of numbers");
+					range.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							JFrame rangeWindow = getRangeWindow();
+							rangeWindow.setVisible(true);
+							} 
+					});	
+					
 					preferences.add(fieldsize);
 					preferences.add(scaleRows);
+					preferences.add(range);
 					
 					sort.add(dummy);
 					sort.add(bubble);
@@ -212,7 +225,6 @@ public class Controller extends JFrame implements ActionListener{
 				elements.setSize(windowWidth-40, 50);
 				elements.setLayout(new BorderLayout());			
 				elements.add(getNrOfOperations(), BorderLayout.WEST);
-				//elements.add(getSlider(), BorderLayout.CENTER);
 				elements.add(getTimeOfCalculation(), BorderLayout.EAST);
 					JPanel buttons = new JPanel();
 					buttons.add(getPlayButton());
@@ -254,7 +266,7 @@ public class Controller extends JFrame implements ActionListener{
 	   	prefWindow.setSize(300,150);
 	   	prefWindow.setLocationRelativeTo(this);
 		JPanel pan = new JPanel();
-		JLabel fs = new JLabel("Scalerows (max. 50)");
+		JLabel fs = new JLabel("Scalerows (max. 100)");
 		pan.add(fs);
 		inputFieldsize = new JTextField(""+v1.getScaleRows(),4);
 		pan.add(inputFieldsize);
@@ -264,6 +276,23 @@ public class Controller extends JFrame implements ActionListener{
 		prefWindow.add(pan);
 		return prefWindow;
   }
+   
+   private JFrame getRangeWindow() {
+	   	prefWindow = new JFrame("Preferences");
+	   	prefWindow.setSize(300,150);
+	   	prefWindow.setLocationRelativeTo(this);
+		JPanel pan = new JPanel();
+		JLabel fs = new JLabel("Range of numbers (max. 1000)");
+		pan.add(fs);
+		inputFieldsize = new JTextField(""+m1.getRange(),4);
+		pan.add(inputFieldsize);
+		rangeButt = new JButton("OK");
+		rangeButt.addActionListener(this);
+		pan.add(rangeButt);
+		prefWindow.add(pan);
+		return prefWindow;
+ }
+   
    private JSlider getSlider() {									// Regler der Animationsverzögerung
 		speed = new JSlider(0,1000,delay);				// Minimal, Maximal, Default
 		speed.setPreferredSize(new Dimension(300,50));	   
@@ -335,7 +364,7 @@ public class Controller extends JFrame implements ActionListener{
 		           else { 
 		           	prefWindow.dispose();
 		           	m1.resize_field(i);
-		           	v1.calc_barWidth();
+		           	v1.calc_View();
 		           	repaint();
 		           } 
 			   }
@@ -345,10 +374,25 @@ public class Controller extends JFrame implements ActionListener{
 				String inp = inputFieldsize.getText();
 				   if (isParsable(inp)) {
 			           int i = Integer.parseInt(inp);
-			           if (i<1 || i>50) { inputFieldsize.setText(""+v1.getScaleRows()); }
+			           if (i<1 || i>100) { inputFieldsize.setText(""+v1.getScaleRows()); }
 			           else { 
 			           	prefWindow.dispose();
 			           	v1.setScaleRows(i);
+			           	v1.calc_View();			           	
+			           	repaint();
+			           } 
+				   }
+		       } 
+			if(e.getSource() == rangeButt){
+				String inp = inputFieldsize.getText();
+				   if (isParsable(inp)) {
+			           int i = Integer.parseInt(inp);
+			           if (i<3 || i>1000) { inputFieldsize.setText(""+m1.getRange()); }
+			           else { 
+			           	prefWindow.dispose();
+			           	m1.setRange(i);
+			           	m1.init_field(true);
+			           	v1.calc_View();			           	
 			           	repaint();
 			           } 
 				   }
@@ -357,9 +401,7 @@ public class Controller extends JFrame implements ActionListener{
 			if(e.getSource() == playButt){
 				   paused = !paused;
 				   if (m1.isFinished()) { m1.init_field(false); resetTime(); }
-				   if (paused) { playButt.setIcon(play); }
-				   else { playButt.setIcon(pause); }
-		       } 
+				   } 
 		}
 	
 

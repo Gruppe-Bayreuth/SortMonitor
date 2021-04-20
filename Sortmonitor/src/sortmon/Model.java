@@ -8,7 +8,7 @@ public class Model {
 	private int size = 200;											// Größe des Arrays / Zahl der Balken
 	private int[] oldfield = new int[size];
 	private int[] aktfield = new int[size];
-	private int range = 100;										// verwendete Zahlenwerte: 1 - range
+	private int range = 1000;										// verwendete Zahlenwerte: 1 - range
 	
 	private int currentOldIndex, usedIndex, comparedIndex;			// farblich markierte Indices
 	private boolean ready;
@@ -78,7 +78,7 @@ public class Model {
 			if (step < size) {
 				if (step == 0) { sorted.clear(); unsorted.clear(); for (int i: oldfield) {	unsorted.add(i); } }  // Komplettkopie nach unsorted beim ersten Aufruf
 				// Minimum in unsorted finden
-					int min = 99;  int indexOfMin = -1;							// Wert auf Max setzen
+					int min = range;  int indexOfMin = -1;							// Wert auf Max setzen
 					for (int i=0; i<unsorted.size(); i++) {
 						if (unsorted.get(i) <= min) { min = unsorted.get(i); indexOfMin = i; }
 						numberOfOpsInc(1);
@@ -291,7 +291,7 @@ public class Model {
 			for (int i=0; i<inplace.length; i++) {
 				if (inplace[i] == 0 && left == -1) { left = i; right=i; } 
 				if (inplace[i] == 0 && left != -1) { right++; } 
-				if (inplace[i] != 0 && left != -1 && left != right) { i= inplace.length + 100; } // Schleifenabbruch
+				if (inplace[i] != 0 && left != -1 && left != right) { i= inplace.length + 1000; } // Schleifenabbruch
 			}					
 			
 			//System.out.println("Left: " + left + " - Right: " + right);
@@ -351,8 +351,7 @@ public class Model {
 		// ArrayLists (distribution) befüllen je nach Ziffer
 		if (!done) {
 					for (int i = 0; i < size; i++) {						
-						if (step == 0) { loc = aktfield[i]%10; }							// nach letzter Ziffer einordnen
-						else { loc = (aktfield[i]/(int) Math.pow(10,step))%10; } 			// nach vor-/dritt (step-)letzter Ziffer
+						loc = (aktfield[i]/(int) Math.pow(10,step))%10;						// liefert die step-te Ziffer von rechts
 						distribution[loc].add(aktfield[i]);									// der jeweiligen Arraylist anhängen
 						numberOfOpsInc(1);
 					}
@@ -455,6 +454,13 @@ public class Model {
 	}
 	
 	// Getter/Setter
+	public int getRange() {
+		return this.range;
+	}
+	
+	public void setRange(int r) {
+		this.range = r;
+	}
 	
 	public int getSize() {
 		return this.size;

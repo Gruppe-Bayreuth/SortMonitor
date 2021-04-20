@@ -15,19 +15,20 @@ public class View extends JPanel {
 	private Model m;
 	private Controller c;
 	private int windowWidth, windowHeight;
-	private int range = 100;
-	private int barWidth=5;
+	private float range;
+	private float barWidth=5;
 	private int space=2;
 	private int marginLeft = 40;
 	private int marginBottom = 520;
 	private int marginBottom2 = 150;
-	private int factorHeight = 3;
+	private float factorHeight = 3;
 	private int nrOfScaleRows = 20;
+	private int mod = 1;
 	private Color old = Color.GRAY;
 	private Color akt = Color.LIGHT_GRAY;
 	private Color used = Color.YELLOW;
 	private Color compared = Color.RED;
-	private Color scale = new Color(30,30,30);
+	private Color scale = new Color(40,40,40);
 	private Color headerCol1 = new Color(154,205,50);
 	private Color headerCol2 = new Color(99,184,255);	
 	private Font headers = new Font("Verdana", Font.PLAIN, 18);
@@ -38,16 +39,31 @@ public class View extends JPanel {
 					this.windowHeight = h;
 					this.m = m;		
 					this.c = c;
-					calc_barWidth();
+					calc_View();
 			}
 			
-			public void calc_barWidth() {
+			public void calc_View() {
+				this.range = m.getRange();
 				this.space = 2;
 				if (m.getSize() > 470) { this.space = 1; }
 				if (m.getSize() > 700) { this.space = 0; }
 				
 				this.barWidth = (int) (windowWidth-marginLeft*2) / m.getSize() - space;
 				if (this.barWidth < 1) { this.barWidth = 1; }
+				if (m.getSize() < 40) { barWidth--; }
+				if (m.getSize() < 30) { barWidth--; }
+				if (m.getSize() < 20) { barWidth--; }
+				
+				// Balkenhöhe
+				this.factorHeight = 300 / this.range;
+				
+				// Skala
+				if (nrOfScaleRows > this.range) { nrOfScaleRows = (int) range; }
+		        if (nrOfScaleRows > 30 && nrOfScaleRows <= 50) { mod=2; } 
+	        	else if (nrOfScaleRows > 50 && nrOfScaleRows <= 70) { mod = 3; }
+	        	else if (nrOfScaleRows > 70 && nrOfScaleRows < 100) { mod = 4; }
+	        	else if (nrOfScaleRows == 100) { mod = 5; }
+	        	else { mod=1; }
 			}
 			
 				public void paintComponent(Graphics g) {
@@ -56,29 +72,25 @@ public class View extends JPanel {
 			        // Hintergrund
 			        g2d.setColor(Color.BLACK);
 			        g2d.fillRect(0, 0, this.getWidth(), this.getHeight());
-			        
-			        // Skala
-			        int mod =1;
+			       		        	
 			        g2d.setColor(scale);
 			        for (int i = 0; i<=nrOfScaleRows; i++) {
-			        	int ypos = windowHeight-marginBottom-((range*factorHeight)/nrOfScaleRows*i);
+			        	int ypos = windowHeight-marginBottom-((int)(range*factorHeight/nrOfScaleRows*i));
 			        	g.drawLine(20, ypos , windowWidth-50, ypos);
-			        	if (nrOfScaleRows > 30) { mod=2; } else { mod=1; }
-			        	if (i%mod==0) { g.drawString(""+i*range/nrOfScaleRows, windowWidth-45, ypos+3); }			        
+			        	if (i%mod==0) { g.drawString(""+(int)(i*range/nrOfScaleRows), windowWidth-45, ypos+4); }			        
 			        }
 			        for (int i = 0; i<=nrOfScaleRows; i++) {
-			        	int ypos = windowHeight-marginBottom2-((range*factorHeight)/nrOfScaleRows*i);
+			        	int ypos = windowHeight-marginBottom2-((int)(range*factorHeight/nrOfScaleRows*i));
 			        	g.drawLine(20, ypos , windowWidth-50, ypos);
-			        	if (nrOfScaleRows > 30) { mod=2; } else { mod=1; }
-			        	if (i%mod==0) { g.drawString(""+i*range/nrOfScaleRows, windowWidth-45, ypos+3); }
+			        	if (i%mod==0) { g.drawString(""+(int)(i*range/nrOfScaleRows), windowWidth-45, ypos+4); }
 			        }
 			        
 			        // Beschriftung
 			        g2d.setColor(headerCol1);
 			        g.setFont(headers);
-			        g.drawString("RANDOMIZED FIELD", windowWidth/2-130, windowHeight-marginBottom-105*factorHeight);
+			        g.drawString("RANDOMIZED FIELD", windowWidth/2-125, (int) (windowHeight-marginBottom-(range*factorHeight+20)));
 			        g2d.setColor(headerCol2);
-				    g.drawString(c.getAlgo().toUpperCase(), windowWidth/2-100, windowHeight-marginBottom2-105*factorHeight);
+				    g.drawString(c.getAlgo().toUpperCase(), windowWidth/2-100, (int) (windowHeight-marginBottom2-(range*factorHeight+20)));
 			        
 			        
 			        // Oldfield
@@ -88,7 +100,7 @@ public class View extends JPanel {
 			        for (int f: old_field) {
 			        	if (count == m.getCurrentOldIndex()) { g2d.setColor(used); }
 			        	else { g2d.setColor(old); }
-			        	g2d.fillRect(marginLeft+count*(barWidth+space),windowHeight-marginBottom-f*factorHeight,barWidth,f*factorHeight);
+			        	g2d.fillRect(marginLeft+count*((int)barWidth+space), (int) (windowHeight-marginBottom-Math.floor(f*factorHeight)),(int)barWidth,(int) (f*factorHeight));
 			        	count++;
 			        }
 			        
@@ -100,7 +112,7 @@ public class View extends JPanel {
 			        	if (count == m.getUsedIndex()) { g2d.setColor(used); } 
 			        	else if (count == m.getComparedIndex()) { g2d.setColor(compared); } 
 			        	else { g2d.setColor(akt); }        	
-			        	g2d.fillRect(marginLeft+count*(barWidth+space),windowHeight-marginBottom2-f*factorHeight,barWidth,f*factorHeight);
+			        	g2d.fillRect(marginLeft+count*((int)barWidth+space),(int) (windowHeight-marginBottom2-Math.floor(f*factorHeight)),(int)barWidth,(int) (f*factorHeight));
 			        	count++;
 			        }
 			        
