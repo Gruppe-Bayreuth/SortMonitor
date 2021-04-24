@@ -72,11 +72,13 @@ public class Controller extends JFrame implements ActionListener{
 				 	calctimeStart();
 			 		switch (getAlgo()) {
 				 		case "Dummy Sort": m1.dummy_sort(); break;
-				 		case "Selection Sort": m1.selection_sort(); break;			 		
+				 		case "Selection Sort": m1.selection_sort(); break;
+				 		case "Insertion Sort": m1.insertion_sort(); break;			 						 		
 				 		case "Gnome Sort": m1.gnome_sort(); break;			 		
 				 		case "Bubble Sort": m1.bubble_sort(); break;
 				 		case "Quick Sort": m1.quick_sort(); break;
 				 		case "Quick Sort opt": m1.opt_quick_sort(); break;
+				 		case "Merge Sort": m1.merge_sort(); break;
 				 		case "Radix Sort": m1.radix_sort(); break;
 				 	}
 			 		calctimeEnd();
@@ -159,6 +161,12 @@ public class Controller extends JFrame implements ActionListener{
 							startAlgo("Selection Sort");					
 							} 
 					});
+					JMenuItem insertion = new JMenuItem("InsertionSort");
+					insertion.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) { 
+							startAlgo("Insertion Sort");					
+							} 
+					});
 					JMenuItem gnome = new JMenuItem("GnomeSort");
 					gnome.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) { 
@@ -175,6 +183,12 @@ public class Controller extends JFrame implements ActionListener{
 					optquick.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) { 
 							startAlgo("Quick Sort opt");
+							} 
+					});
+					JMenuItem merge = new JMenuItem("MergeSort");
+					merge.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) { 
+							startAlgo("Merge Sort");
 							} 
 					});
 					JMenuItem radix = new JMenuItem("RadixSort");
@@ -216,9 +230,11 @@ public class Controller extends JFrame implements ActionListener{
 					sort.add(dummy);
 					sort.add(bubble);
 					sort.add(gnome);					
-					sort.add(selection);					
+					sort.add(selection);
+					sort.add(insertion);					
 					sort.add(quick);
 					sort.add(optquick);
+					sort.add(merge);
 					sort.add(radix);
 			
 					menu.add(reset);

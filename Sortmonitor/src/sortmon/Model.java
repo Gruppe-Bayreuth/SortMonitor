@@ -34,6 +34,8 @@ public class Model {
 	private ArrayList<Integer> ranges = new ArrayList<Integer>();
 	private ArrayList<Integer> pivots = new ArrayList<Integer>();
 	
+	// in place Quick
+	
 	// Radix	
 	private ArrayList[] distribution = new ArrayList[11];	
 	private int part, counter, puff;
@@ -74,6 +76,32 @@ public class Model {
 			ready = true;
 			step = 0;
 		}
+	}
+	
+	// Insertion Sort 
+	public void insertion_sort() {
+		if (step == 0) { copy_field(); }
+		else if (step<getSize()) {
+			int tmp = aktfield[step];
+			int j = step;
+			while(j>0 && tmp < aktfield[j-1]) {
+				aktfield[j] = aktfield[j-1];
+				j--;
+				numberOfOpsInc(2);
+			}	
+			aktfield[j] = tmp;
+			numberOfOpsInc(1);			
+			setCurrentOldIndex(step);
+			setUsedIndex(step);
+			setComparedIndex(j);
+		}
+		else {
+			ready = true;
+			setCurrentOldIndex(size-1);
+			setUsedIndex(size-1);
+			setComparedIndex(size-1);
+		}
+		step++;
 	}
 	
 	// SelectionSort
@@ -343,7 +371,15 @@ public class Model {
 				ready = true; 
 				}
 		}
-	
+		
+	// Mergesort
+	public void merge_sort() {
+		step = 0;
+		if (step == 0) { copy_field(); }
+		ready = true;	
+	}
+		
+		
 	// Radix-Sort
 	public void radix_sort() {
 		int loc=0;
