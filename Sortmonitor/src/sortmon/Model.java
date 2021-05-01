@@ -34,7 +34,8 @@ public class Model {
 	private ArrayList<Integer> ranges = new ArrayList<Integer>();
 	private ArrayList<Integer> pivots = new ArrayList<Integer>();
 	
-	// in place Quick
+	// Merge Sort
+	private ArrayList<ArrayList<Integer>> merges = new ArrayList<ArrayList<Integer>>();
 	
 	// Radix	
 	private ArrayList[] distribution = new ArrayList[11];	
@@ -91,8 +92,8 @@ public class Model {
 			}	
 			aktfield[j] = tmp;
 			numberOfOpsInc(1);			
-			setCurrentOldIndex(step);
-			setUsedIndex(step);
+			setCurrentOldIndex(step+1);
+			setUsedIndex(step+1);
 			setComparedIndex(j);
 		}
 		else {
@@ -374,9 +375,69 @@ public class Model {
 		
 	// Mergesort
 	public void merge_sort() {
-		step = 0;
-		if (step == 0) { copy_field(); }
-		ready = true;	
+		// Erster Schritt: aufteilen in Einzelarrays
+		if (step == 0) { 
+				for (int i: oldfield) {
+					ArrayList<Integer> first = new ArrayList<Integer>();
+					first.add(i);
+					merges.add(first);
+					numberOfOpsInc(1);
+				}
+			}
+		
+		// Merge-Phase
+		ArrayList<ArrayList<Integer>> tmp = new ArrayList<ArrayList<Integer>>();
+		for (int i = 0; i < merges.size()-1; i+=2) {
+			tmp.add(merge_it(merges.get(i), merges.get(i+1)));
+		}
+		if (merges.size()%2==1) { tmp.add(merges.get(merges.size()-1)); } // bei ungerader Feldgröße wird letztes Element unverändert eingefügt
+		
+		
+		
+		// Kopieren nach Aktfield
+		int count = 0;
+		for (ArrayList<Integer> ar: tmp) {
+			for (int i: ar) {
+				aktfield[count] = i;
+				count++;
+			}
+		}
+		
+		// Nächster Merge-Schritt
+		merges=tmp;
+		step++;
+		int log = (int)(Math.log(size) / Math.log(2));		// logarithmische Laufzeit
+		if (step > log) { 
+			setCurrentOldIndex(size-1);  // Endmarkierung händisch setzen
+			setUsedIndex(size-1);
+			setComparedIndex(size-1);
+			ready = true; }
+	}
+	
+	private ArrayList<Integer> merge_it(ArrayList<Integer> one, ArrayList<Integer> two) {
+		ArrayList<Integer> merged = new ArrayList<Integer>();
+		// vergleichen
+		int i=0; int ii = 0;
+		while (i < one.size() && ii < two.size()) {
+			if (one.get(i) < two.get(ii)) { merged.add(one.get(i)); i++; }
+			else { merged.add(two.get(ii)); ii++; }
+			numberOfOpsInc(1);
+		}
+		
+		if (i < one.size()) {
+			for (int ti = i; ti < one.size(); ti++) {
+				merged.add(one.get(ti));
+				numberOfOpsInc(1);
+			}
+		}
+		
+		if (ii < two.size()) {
+			for (int ti = ii; ti < two.size(); ti++) {
+				merged.add(two.get(ti));
+				numberOfOpsInc(1);
+			}
+		}
+		return merged;
 	}
 		
 		
@@ -445,6 +506,7 @@ public class Model {
 			this.inplace[i] = 0;
 		}
 		ranges.clear();
+		merges.clear();
 		
 		setCurrentOldIndex(-1);
 		setUsedIndex(-1);
