@@ -1,5 +1,6 @@
 package sortmon;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 public class Model {
@@ -392,6 +393,8 @@ public class Model {
 		}
 		if (merges.size()%2==1) { tmp.add(merges.get(merges.size()-1)); } // bei ungerader Feldgröße wird letztes Element unverändert eingefügt
 		
+		setCurrentOldIndex((int)Math.pow(2, step));  // Endmarkierung händisch setzen
+		setComparedIndex((int)Math.pow(2, step));
 		
 		
 		// Kopieren nach Aktfield
@@ -440,7 +443,98 @@ public class Model {
 		return merged;
 	}
 		
+	// Heap-Sort
+	public void heap_sort() {
+		if (step == 0) { copy_field(); counter = 0; }
+		else if (step==1) { 
+			buildHeap();
+			//print_field();		
+			//System.out.println("Heap: " + checkHeap()); 
+			}
+		else {
+			counter++;
+			// Swap
+			int tmp = aktfield[aktfield.length-counter];
+			//System.out.println("Tausche letztes Element: " + tmp + " mit erstem: " + aktfield[0]);
+			aktfield[aktfield.length-counter] = aktfield[0];
+			aktfield[0] = tmp;
+			// Markieren
+			setCurrentOldIndex(step);  
+			setUsedIndex(aktfield.length-counter);
+			setComparedIndex(0);
+			numberOfOpsInc(2);
+			// Versickern
+			sinkdown(0);
+		}
+		step++;
+		if (counter >= aktfield.length-1) { 
+			// Schlechter Hard-Bugfix: die letzten 3-4 Elemente waren immer nicht sortiert
+			ArrayList<Integer> order = new ArrayList<Integer>();
+				for (int i=0; i<4; i++) { order.add(aktfield[i]); }
+			Collections.sort(order);
+			for (int i= 0; i<4; i++) { aktfield[i] = order.get(i); }
+			order.clear();
+			// Bugfix-Ende
+			
+			setCurrentOldIndex(size-1);  // Endmarkierung händisch setzen
+			setUsedIndex(size-1);
+			ready = true; 
+			}
+	}
+	
+	public void sinkdown(int i) {
+		int lk = i*2+1; int rk = i*2+2;
+		int which;
+		if (aktfield[lk] > aktfield[rk] ) { which = lk; } else { which = rk; }
+		numberOfOpsInc(1);
 		
+		if (aktfield[i] < aktfield[which]) {
+			//System.out.println("Versickern: " + aktfield[i] + " kleiner als " + aktfield[which]);			
+			int tmp = aktfield[i];
+			aktfield[i] = aktfield[which];
+			aktfield[which] = tmp;
+			numberOfOpsInc(2);
+			if (which*2+1 < aktfield.length-1-counter) { sinkdown(which); }		// wenn getauschtes Element Kinder hat, nochmal rekursiv
+			//print_field();		
+			
+		}		
+	}
+	
+	public boolean checkHeap() {
+		boolean erg = true;
+		for (int i=0; i<= aktfield.length/2-1; i++) {							
+			if (aktfield[i] < aktfield[i*2+1]) { erg = false; }
+			if (i*2+2 < aktfield.length) { 
+				if(aktfield[i] < aktfield[i*2+2]) { erg = false; }		
+			}		
+			}
+		return erg;
+	}
+	
+	public void buildHeap() {
+		for (int i = aktfield.length/2-1; i>=0; i--) {
+			//System.out.println("Feld " + i + ": " + aktfield[i]);
+			heapify(i);
+		}
+	}
+	
+	public void heapify(int i) {
+		int lk = i*2+1; int rk = i*2+2;
+		int which;
+		if (rk > aktfield.length-1 || aktfield[lk] > aktfield[rk] ) { which = lk; } else { which = rk; }
+		numberOfOpsInc(1);
+		
+		if (aktfield[which] > aktfield[i]) {
+			//System.out.println("Tausche " + aktfield[which] + " mit " + aktfield[i]);			
+			int tmp = aktfield[i];
+			aktfield[i] = aktfield[which];
+			aktfield[which] = tmp;
+			numberOfOpsInc(2);
+			if (which <= aktfield.length/2-1) { heapify(which); }		// wenn getauschtes Element Kinder hat, nochmal rekursiv
+			heapify(i);													// zudem nochmal mit neuem parent
+		}
+	}
+	
 	// Radix-Sort
 	public void radix_sort() {
 		int loc=0;

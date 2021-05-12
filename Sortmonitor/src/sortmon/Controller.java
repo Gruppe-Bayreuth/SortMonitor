@@ -76,6 +76,7 @@ public class Controller extends JFrame implements ActionListener{
 				 		case "Insertion Sort": m1.insertion_sort(); break;			 						 		
 				 		case "Gnome Sort": m1.gnome_sort(); break;			 		
 				 		case "Bubble Sort": m1.bubble_sort(); break;
+				 		case "Heap Sort": m1.heap_sort(); break;
 				 		case "Quick Sort": m1.quick_sort(); break;
 				 		case "Quick Sort opt": m1.opt_quick_sort(); break;
 				 		case "Merge Sort": m1.merge_sort(); break;
@@ -185,6 +186,12 @@ public class Controller extends JFrame implements ActionListener{
 							startAlgo("Quick Sort opt");
 							} 
 					});
+					JMenuItem heap = new JMenuItem("HeapSort");
+					heap.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) { 
+							startAlgo("Heap Sort");
+							} 
+					});
 					JMenuItem merge = new JMenuItem("MergeSort");
 					merge.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) { 
@@ -231,7 +238,8 @@ public class Controller extends JFrame implements ActionListener{
 					sort.add(bubble);
 					sort.add(gnome);					
 					sort.add(selection);
-					sort.add(insertion);					
+					sort.add(insertion);
+					sort.add(heap);
 					sort.add(quick);
 					sort.add(optquick);
 					sort.add(merge);
